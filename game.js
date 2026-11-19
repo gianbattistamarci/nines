@@ -1,6 +1,6 @@
 /* Nines: the game code. The course content lives in questions.js. */
 "use strict";
-var VERSION = "1.1";   /* Raise this with every published change. It is shown in the footer. */
+var VERSION = "1.1.1";   /* Raise this with every published change. It is shown in the footer. */
 /* ---------------------------------------------------------------- content */
 /* The lessons and exams (COURSE and LATER) live in questions.js, loaded just above this script. */
 if(typeof COURSE === "undefined"){ document.getElementById("root").textContent = "The file questions.js could not be loaded. It must sit in the same folder as index.html."; throw new Error("questions.js missing"); }

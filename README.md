@@ -86,6 +86,10 @@ To report a security problem, open an issue in this repository.
 | `game.js` | The game code |
 | `questions.js` | The course: every lesson, exam, question and explanation |
 | `fonts/` | The two fonts and their licence |
+| `icon.png` | The icon shown in the browser tab and on a phone's home screen |
+| `preview.png` | The image shown when a link to the game is shared |
+
+The link preview in `index.html` uses the full address of the game (`og:url` and `og:image`). If the game moves to another address, change those lines.
 
 To add or change questions, edit `questions.js` only. The format and the writing rules are described at the top of that file. When you publish a change, raise `VERSION` at the top of `game.js`, so the footer shows which version a player has.
 
@@ -106,6 +110,7 @@ Fonts: Inter (The Inter Project Authors) and Plus Jakarta Sans (The Plus Jakarta
 
 | Version | What changed |
 |---|---|
+| 1.1.1 | Icon and preview image when a link to the game is shared |
 | 1.1 | A second version of every question, player name, rank certificates |
 | 1.0 | The full course, clear game data, self-hosted fonts, security policy |
 
