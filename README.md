@@ -19,14 +19,16 @@ This is an early preview.
 
 ## Play
 
-Open `index.html` in a browser. There is nothing to install and nothing to build.
+Open `index.html` in a browser, with `questions.js` in the same folder. There is nothing to install and nothing to build.
 
 To host it, enable GitHub Pages for this repository (Settings, Pages, deploy from the main branch). The game is then available at the Pages address of the repository.
 
 ## How it works
 
 - **Lessons**: six questions each. A question you get wrong comes back before the lesson ends.
-- **Question types**: pick one answer, sort items into two groups, put items in order.
+- **Question types**: pick one answer, sort items into two or three groups, put items in order.
+- **Feedback**: after every answer, right or wrong, you get the point in one plain sentence and an everyday picture of the same idea.
+- **Variety**: an idea can have several versions of its question. Each play draws one version per idea and avoids the one you saw last time. Lessons keep their order, from easy to hard. Checkpoints shuffle it.
 - **Checkpoints**: exams with no second tries and an 80% pass mark. If you miss questions, the result names the lessons to practise.
 - **Scoring**: 10 points for a first-time correct answer, 5 on a repeat, a bonus from three correct in a row, and a bonus for a perfect lesson. Each lesson awards one to three stars.
 - **Ranks**: earned by passing checkpoints, so each rank says what you can now do.
@@ -59,9 +61,10 @@ The same page also runs as a Claude artifact, where progress syncs to the player
 
 | File | Purpose |
 |---|---|
-| `index.html` | The whole game: styles, lesson content and code in one page |
+| `index.html` | The game: styles and code |
+| `questions.js` | The course: every lesson, exam, question and explanation |
 
-The lesson content sits at the top of the script in `index.html`, in the `COURSE` list. Splitting it into separate content files is planned for when the full course is written.
+To add or change questions, edit `questions.js` only. The format and the writing rules are described at the top of that file.
 
 ## Sources and credits
 
