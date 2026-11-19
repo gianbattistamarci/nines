@@ -8,7 +8,7 @@ The name comes from how reliability is talked about in the field: "three nines" 
 
 ## The course
 
-13 units, 29 lessons, 5 checkpoints and a final exam.
+13 units, 29 lessons, 5 checkpoints and a final exam. Every idea has two versions of its question, 488 questions in total.
 
 | Unit | Title | Lessons |
 |---|---|---|
@@ -37,10 +37,11 @@ To host it, enable GitHub Pages for this repository (Settings, Pages, deploy fro
 - **Lessons**: six questions each. A question you get wrong comes back before the lesson ends.
 - **Question types**: pick one answer, sort items into groups, put items in order.
 - **Feedback**: after every answer, right or wrong, you get the point in one plain sentence and an everyday picture of the same idea.
-- **Variety**: an idea can have several versions of its question. Each play draws one version per idea and avoids the one you saw last time. Lessons keep their order, from easy to hard. Checkpoints shuffle it.
+- **Variety**: every idea has two versions of its question. Each play draws one version per idea, and mostly the one you did not see last time, so about three quarters of a replay is new. Lessons keep their order, from easy to hard. Checkpoints shuffle it.
 - **Checkpoints**: exams with no second tries and an 80% pass mark. If you miss questions, the result names the lessons to practise.
 - **Scoring**: 10 points for a first-time correct answer, 5 on a repeat, a bonus from three correct in a row, and a bonus for a perfect lesson. Each lesson awards one to three stars.
 - **Ranks**: earned by passing checkpoints, so each rank says what you can now do.
+- **Name and certificates**: you can give a name, which is shown with your rank. Every rank comes with a certificate that can be downloaded as an image, under "Name and certificates" in the footer. The name is whatever the player typed, so a certificate is a keepsake and not proof of anything.
 
 | Earned by | Rank | What it certifies |
 |---|---|---|
@@ -54,13 +55,13 @@ To host it, enable GitHub Pages for this repository (Settings, Pages, deploy fro
 
 ## Saved progress
 
-Progress is stored in the browser's local storage, on the device you play on. It is not sent anywhere.
+Progress and your name are stored in the browser's local storage, on the device you play on. They are not sent anywhere.
 
 "Clear game data" in the footer erases the saved progress and settings with one click, refreshes the browser's stored copies of the game files, and reloads the page. Until you close the tab, an "Undo" button puts the old progress back.
 
 ## Privacy and security
 
-- **No accounts, no tracking, no cookies.** The game stores two small entries in local storage (progress and the text-size setting) and nothing else.
+- **No accounts, no tracking, no cookies.** The game stores two small entries in local storage (progress, with your name if you gave one, and the text-size setting) and nothing else. Certificate images are made in the browser and never uploaded.
 - **No outside requests.** The page loads only its own files. The fonts are served from the `fonts` folder instead of from a font provider.
 - **No secrets.** There are no keys, tokens or passwords in the code, and the game calls no API.
 - **Content security policy.** `index.html` tells the browser to load scripts, fonts and data from this site only, to run no inline scripts, and to allow no forms or plugins.
@@ -100,6 +101,13 @@ The questions and explanations are original writing. The ideas they teach come f
 The books are published under CC BY-NC-ND 4.0. Nines does not reproduce their text.
 
 Fonts: Inter (The Inter Project Authors) and Plus Jakarta Sans (The Plus Jakarta Sans Project Authors), both under the SIL Open Font License 1.1. See `fonts/LICENSE.txt`.
+
+## Versions
+
+| Version | What changed |
+|---|---|
+| 1.1 | A second version of every question, player name, rank certificates |
+| 1.0 | The full course, clear game data, self-hosted fonts, security policy |
 
 ## Licence
 

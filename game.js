@@ -1,7 +1,8 @@
 /* Nines: the game code. The course content lives in questions.js. */
 "use strict";
+var VERSION = "1.1";   /* Raise this with every published change. It is shown in the footer. */
 /* ---------------------------------------------------------------- content */
-/* The lessons and exams (NOTICE, COURSE and LATER) live in questions.js, loaded just above this script. */
+/* The lessons and exams (COURSE and LATER) live in questions.js, loaded just above this script. */
 if(typeof COURSE === "undefined"){ document.getElementById("root").textContent = "The file questions.js could not be loaded. It must sit in the same folder as index.html."; throw new Error("questions.js missing"); }
 /* Ranks are earned by passing checkpoints, so each title says what the player can now do. */
 var RANKS = [
@@ -22,20 +23,23 @@ var MAX_STARS = SEQ.filter(function(n){ return n.type === "lesson"; }).length * 
 /* Progress lives only in this browser's local storage. The game sends nothing anywhere.
    Whatever is read back from storage is rebuilt field by field, so a damaged or edited save cannot
    put unexpected values or keys into the game. */
-var VERSION = "1.0";
 var LS_KEY = "reliability-line-v1", PREF_KEY = "reliability-line-prefs", UNDO_KEY = "nines-undo";
-function blank(){ return { v:1, xp:0, streak:{n:0,last:""}, done:{}, exams:{}, updatedAt:0 }; }
+function blank(){ return { v:1, name:"", xp:0, streak:{n:0,last:""}, done:{}, exams:{}, last:{}, updatedAt:0 }; }
 function num(v, max){ v = +v; return (isFinite(v) && v > 0) ? Math.min(Math.floor(v), max) : 0; }
+var DAY = /^\d{4}-\d{2}-\d{2}$/;
+/* A player name is plain text: no control or text-direction characters, one line, at most 40 characters. */
+function cleanName(v){ return (typeof v === "string" ? v : "").replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u202A-\u202E\u2066-\u2069]/g, " ").replace(/\s+/g, " ").trim().slice(0, 40); }
 function own(o, k){ return !!o && typeof o === "object" && Object.prototype.hasOwnProperty.call(o, k) && !!o[k] && typeof o[k] === "object" ? o[k] : null; }
 function clean(o){
   var s = blank(); if(!o || typeof o !== "object") return s;
-  s.xp = num(o.xp, 1e7); s.updatedAt = num(o.updatedAt, 1e14);
+  s.xp = num(o.xp, 1e7); s.updatedAt = num(o.updatedAt, 1e14); s.name = cleanName(o.name);
   var st = own(o, "streak");
-  if(st){ var last = String(st.last || ""); s.streak = { n:num(st.n, 1e5), last:/^\d{4}-\d{2}-\d{2}$/.test(last) ? last : "" }; }
-  var done = own(o, "done"), exams = own(o, "exams");
+  if(st) s.streak = { n:num(st.n, 1e5), last:(typeof st.last === "string" && DAY.test(st.last)) ? st.last : "" };
+  var done = own(o, "done"), exams = own(o, "exams"), seen = own(o, "last");
   SEQ.forEach(function(n){
+    if(seen && Object.prototype.hasOwnProperty.call(seen, n.id) && typeof seen[n.id] === "string" && /^\d{1,40}$/.test(seen[n.id])) s.last[n.id] = seen[n.id];
     var d = own(n.type === "exam" ? exams : done, n.id); if(!d) return;
-    if(n.type === "exam") s.exams[n.id] = { best:num(d.best, 100), passed:d.passed === true, tries:num(d.tries, 1e6) };
+    if(n.type === "exam") s.exams[n.id] = { best:num(d.best, 100), passed:d.passed === true, tries:num(d.tries, 1e6), on:(typeof d.on === "string" && DAY.test(d.on)) ? d.on : "" };
     else s.done[n.id] = { stars:Math.max(1, num(d.stars, 3)), best:num(d.best, 100), plays:num(d.plays, 1e6) };
   });
   return s;
@@ -158,7 +162,7 @@ function chips(){
 function rankBar(){
   var r = rankInfo(), pct = Math.round(r.frac * 100);
   var tip = !r.next ? "Top rank reached" : (r.built ? "Next: " + r.next.name + ". Pass " + r.next.cp + "." : "Next: " + r.next.name + ", in the full version.");
-  return h("div", {class:"rank"}, h("span", {text:"Rank: " + r.name}),
+  return h("div", {class:"rank"}, h("span", {text:(S.name ? S.name + " \u00B7 " : "") + "Rank: " + r.name}),
     h("span", {class:"meter", role:"img", "aria-label":pct + "% of the way to the next rank"}, h("i", {style:"width:" + pct + "%"})),
     h("span", {text:tip}));
 }
@@ -194,11 +198,15 @@ function renderHome(){
   });
 
   var hero;
+  function begin(){ var el = document.getElementById("name0"), nm = cleanName(el ? el.value : ""); if(nm){ S.name = nm; save(); } start(nx); }
   if(!nx) hero = [h("strong", {text:"You have completed the course."}), h("p", {text:"You hold the top rank: " + RANKS[RANKS.length - 1].name + ". Practise any stop to collect all the stars."})];
   else if(!S.updatedAt) hero = [h("strong", {text:"Learn site reliability engineering, from zero"}),
     h("p", {text:"How do the apps you rely on stay up and running? Short stops, plain language, a few minutes each. No experience needed."}),
-    h("button", {class:"btn btn-primary btn-big", type:"button", text:"Start learning", onclick:function(){ start(nx); }})];
-  else hero = [h("strong", {text:"Welcome back."}), h("p", {text:"Next stop: " + nx.title + "."}),
+    h("div", {class:"field"}, h("label", {for:"name0", text:"Your name (optional)"}),
+      h("input", {id:"name0", type:"text", maxlength:"40", autocomplete:"nickname", placeholder:"For your score and certificates",
+        onkeydown:function(e){ if(e.key === "Enter") begin(); }})),
+    h("button", {class:"btn btn-primary btn-big", type:"button", text:"Start learning", onclick:begin})];
+  else hero = [h("strong", {text:"Welcome back" + (S.name ? ", " + S.name : "") + "."}), h("p", {text:"Next stop: " + nx.title + "."}),
     h("button", {class:"btn btn-primary btn-big", type:"button", text:"Continue", onclick:function(){ start(nx); }})];
 
   var notice = null;
@@ -221,9 +229,87 @@ function renderHome(){
       h("span", {class:"foot-r"},
         h("button", {class:"linkish", type:"button", "aria-pressed":String(prefs.big), text: prefs.big ? "Normal text size" : "Larger text",
           onclick:function(){ prefs.big = !prefs.big; applyPrefs(); try { localStorage.setItem(PREF_KEY, JSON.stringify(prefs)); } catch(e){} renderHome(); }}),
+        h("button", {class:"linkish", type:"button", text:"Name and certificates", onclick:renderCerts}),
         h("button", {class:"linkish", type:"button", disabled:clearing, text:"Clear game data", title:"Erase saved progress and settings on this device, and load the newest version of the game", onclick:clearGameData}),
         h("span", {class:"ver", text:"Version " + VERSION}))));
   paintSave();
+}
+
+/* ----------------------------------------------------------- certificates */
+/* One certificate per earned rank, drawn on a canvas so it can be saved as an image. Nothing is uploaded:
+   the image is made in the browser and offered as a download. The name is whatever the player typed. */
+var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+function niceDate(on){ var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(on || ""); return (m && +m[2] >= 1 && +m[2] <= 12) ? (+m[3]) + " " + MONTHS[+m[2] - 1] + " " + m[1] : ""; }
+function earnedRanks(){ return RANKS.filter(function(r){ return r.exam && S.exams[r.exam] && S.exams[r.exam].passed; }); }
+function certText(rank){
+  var e = S.exams[rank.exam], top = rank === RANKS[RANKS.length - 1];
+  return { who: S.name || "A Nines player", line: top ? "has completed the Nines course and earned the rank" : "has earned the rank",
+    rank: rank.name, can: rank.can, date: niceDate(e.on), score: rank.cp.charAt(0).toUpperCase() + rank.cp.slice(1) + ", best score " + e.best + "%" };
+}
+function drawCert(cv, rank){
+  var c = cv.getContext("2d"), W = cv.width, H = cv.height, t = certText(rank);
+  var DISPLAY = '"Plus Jakarta Sans", "Inter", system-ui, sans-serif', BODY = '"Inter", system-ui, sans-serif';
+  var BLUE = "#1F5FE0", INK = "#141B2D", MUTED = "#5A6478";
+  function text(str, y, font, colour, maxW, spacing){
+    c.font = font; c.fillStyle = colour; c.textAlign = "center"; c.textBaseline = "alphabetic";
+    if("letterSpacing" in c) c.letterSpacing = spacing || "0px";
+    var m = /(\d+)px/.exec(font), size = +m[1];
+    while(maxW && c.measureText(str).width > maxW && size > 18){ size -= 2; c.font = font.replace(/\d+px/, size + "px"); }
+    c.fillText(str, W / 2, y);
+  }
+  c.fillStyle = "#FFFFFF"; c.fillRect(0, 0, W, H);
+  c.strokeStyle = BLUE; c.lineWidth = 12; c.strokeRect(34, 34, W - 68, H - 68);
+  c.strokeStyle = "#C9D4EE"; c.lineWidth = 3; c.strokeRect(58, 58, W - 116, H - 116);
+  c.fillStyle = BLUE; c.beginPath(); c.arc(W / 2, 150, 44, 0, Math.PI * 2); c.fill();
+  text("9", 172, "800 60px " + DISPLAY, "#FFFFFF");
+  text("NINES", 258, "800 40px " + DISPLAY, BLUE, 0, "10px");
+  text("Certificate", 372, "800 92px " + DISPLAY, INK);
+  text("This certifies that", 446, "500 30px " + BODY, MUTED);
+  text(t.who, 552, "800 88px " + DISPLAY, INK, W - 320);
+  c.strokeStyle = "#C9D4EE"; c.lineWidth = 3; c.beginPath(); c.moveTo(W / 2 - 400, 584); c.lineTo(W / 2 + 400, 584); c.stroke();
+  text(t.line, 648, "500 30px " + BODY, MUTED);
+  text(t.rank, 742, "800 78px " + DISPLAY, BLUE, W - 320);
+  text(t.can, 804, "600 30px " + BODY, INK, W - 320);
+  text([t.date, t.score].filter(Boolean).join("   \u00B7   "), 868, "600 26px " + BODY, MUTED, W - 320);
+  text("Earned in Nines, a game for learning site reliability engineering", 910, "500 22px " + BODY, MUTED, W - 320);
+}
+function saveCert(cv, rank){
+  var file = "nines-certificate-" + rank.name.toLowerCase().replace(/[^a-z]+/g, "-") + ".png";
+  function offer(url, temp){ var a = h("a", {href:url, download:file}); document.body.append(a); a.click(); a.remove();
+    if(temp) setTimeout(function(){ URL.revokeObjectURL(url); }, 4000); }
+  try {
+    if(cv.toBlob && window.URL && URL.createObjectURL) cv.toBlob(function(b){ if(b) offer(URL.createObjectURL(b), true); }, "image/png");
+    else offer(cv.toDataURL("image/png"), false);
+  } catch(e){}
+}
+function renderCerts(){
+  sess = null;
+  var ranks = earnedRanks().reverse(), canvases = [];
+  function saveName(){ var el = document.getElementById("name1"); S.name = cleanName(el ? el.value : ""); save(); renderCerts(); }
+  var nameCard = h("section", {class:"card"},
+    h("div", {class:"field"}, h("label", {for:"name1", text:"Your name"}),
+      h("input", {id:"name1", type:"text", maxlength:"40", autocomplete:"nickname", value:S.name, placeholder:"Shown on your score and certificates",
+        onkeydown:function(e){ if(e.key === "Enter") saveName(); }}),
+      h("button", {class:"btn btn-primary", type:"button", text:"Save", onclick:saveName})),
+    h("p", {class:"hint", text:"Your name is stored on this device only. Leave it empty to play without a name."}));
+  var cards = ranks.map(function(rank){
+    var t = certText(rank);
+    var cv = h("canvas", {class:"cert", width:"1600", height:"1000", role:"img",
+      "aria-label":"Certificate. " + t.who + " " + t.line + " " + t.rank + ". " + t.can + " " + [t.date, t.score].filter(Boolean).join(". ") + "."});
+    canvases.push([cv, rank]);
+    return h("section", {class:"card"}, cv,
+      h("div", {class:"p-actions"}, h("button", {class:"btn", type:"button", text:"Download as image", onclick:function(){ saveCert(cv, rank); }})));
+  });
+  if(!ranks.length) cards = [h("section", {class:"card"}, h("p", {class:"where", text:"No certificates yet"}),
+    h("p", {text:"You earn a certificate with every rank. The first one is " + RANKS[1].name + ": pass " + RANKS[1].cp + "."}))];
+  root.replaceChildren.apply(root, [
+    h("header", {class:"hud"}, h("div", {class:"hud-row"}, h("h1", {class:"logo", text:"Name and certificates"}),
+      h("button", {class:"btn btn-small", type:"button", id:"main", text:"Back to the path", onclick:renderHome}))),
+    nameCard].concat(cards));
+  function paint(){ canvases.forEach(function(x){ if(x[0].isConnected) drawCert(x[0], x[1]); }); }
+  paint();
+  try { if(document.fonts && document.fonts.load) Promise.all([document.fonts.load('800 88px "Plus Jakarta Sans"'), document.fonts.load('500 30px "Inter"')]).then(paint, function(){}); } catch(e){}
+  window.scrollTo(0, 0);
 }
 
 /* ----------------------------------------------------------------- player */
@@ -237,19 +323,25 @@ function prep(q){
   if(q.type === "order"){ var pool; do { pool = shuffle(q.items); } while(pool.join("|") === q.items.join("|")); p.pool = pool; p.sel = []; }
   return p;
 }
-/* An entry in a lesson's qs is one question, or a list of versions of the same idea. Each play draws one
-   version per idea and avoids the version shown last time, so a replay is not a repeat. */
-var lastDraw = {};
-function draw(key, slot){
-  if(!Array.isArray(slot)) return slot;
-  var i = Math.floor(Math.random() * slot.length);
-  if(slot.length > 1 && i === lastDraw[key]) i = (i + 1) % slot.length;
-  lastDraw[key] = i;
-  return slot[i];
+/* An entry in a stop's qs is one question, or a list of versions of the same idea. Each play draws one
+   version per idea. With two versions, the one you did not see last time is drawn three times out of four,
+   so a replay is mostly new without being a fixed swap. With more versions, the last one is never repeated.
+   What was drawn is remembered in the save (S.last), so this also works after closing the browser. */
+function drawAll(node){
+  var prev = S.last[node.id] || "", picks = "";
+  var qs = node.qs.map(function(slot, i){
+    if(!Array.isArray(slot)){ picks += "0"; return slot; }
+    var n = slot.length, was = prev.charAt(i) === "" ? -1 : +prev.charAt(i), k = Math.floor(Math.random() * n);
+    if(n === 2 && was >= 0 && was < 2) k = Math.random() < 0.75 ? 1 - was : was;
+    else if(n > 2 && k === was) k = (k + 1 + Math.floor(Math.random() * (n - 1))) % n;
+    picks += String(Math.min(k, 9)); return slot[k];
+  });
+  S.last[node.id] = picks;
+  return qs;
 }
 function start(node){
   var ex = node.type === "exam";
-  var qs = node.qs.map(function(slot, i){ return draw(node.id + ":" + i, slot); });
+  var qs = drawAll(node);
   if(ex) qs = shuffle(qs);
   sess = { node:node, exam:ex, full: ex ? !(S.exams[node.id] && S.exams[node.id].passed) : !S.done[node.id], qs:qs,
     queue: qs.map(function(_, i){ return i; }), total:qs.length, resolved:0, mistakes:0, missed:{}, results:[],
@@ -293,7 +385,8 @@ function finish(){
     var prev = S.exams[n.id] || { best:0, passed:false, tries:0 };
     r.bonus = (r.passed && !prev.passed) ? 50 : 0;
     r.newRank = r.bonus ? RANKS.filter(function(x){ return x.exam === n.id; })[0] : null;
-    S.exams[n.id] = { best:Math.max(prev.best, r.pct), passed:prev.passed || r.passed, tries:prev.tries + 1 };
+    S.exams[n.id] = { best:Math.max(prev.best, r.pct), passed:prev.passed || r.passed, tries:prev.tries + 1,
+      on: prev.passed ? (prev.on || "") : (r.passed ? day(new Date()) : "") };
   } else {
     var missed = Object.keys(r.missed).length;
     r.first = r.total - missed; r.stars = missed === 0 ? 3 : (missed <= 2 ? 2 : 1);
@@ -404,6 +497,7 @@ function renderPlay(){
     if(s.exam && !s.passed) actions.push(h("button", {class:"btn", type:"button", text:"Try again", onclick:function(){ start(n); }}));
     actions.push(h("button", {class:"btn" + (nx && nx !== n && !(s.exam && !s.passed) ? "" : " btn-primary"), type:"button", text:"Back to the path", onclick:renderHome,
       id: (nx && nx !== n && !(s.exam && !s.passed)) ? null : "main"}));
+    if(s.exam && s.passed) actions.unshift(h("button", {class:"btn", type:"button", text:"See your certificate", onclick:renderCerts}));
     if(nx && nx !== n && !(s.exam && !s.passed)) actions.push(h("button", {class:"btn btn-primary btn-big", type:"button", id:"main", text:"Next stop", onclick:function(){ start(nx); }}));
   } else {
     var locked = s.phase === "feedback";
