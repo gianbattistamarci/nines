@@ -691,7 +691,7 @@ function renderHome(){
         h("button", {class:"linkish", type:"button", "aria-pressed":String(prefs.big), text: prefs.big ? "Normal text size" : "Larger text",
           onclick:function(){ prefs.big = !prefs.big; applyPrefs(); try { localStorage.setItem(PREF_KEY, JSON.stringify(prefs)); } catch(e){} renderHome(); }}),
         confirmReset ? null : h("button", {class:"linkish", type:"button", text:"Reset progress", onclick:function(){ confirmReset = true; renderHome(); }}))),
-    reset);
+   reset || "");
   paintSave();
 }
 
@@ -879,7 +879,7 @@ function renderPlay(){
   var quit = (s.quit && s.phase !== "result") ? h("div", {class:"confirm"}, h("span", {text:"Leave this stop? Your answers here will not be kept."}),
     h("button", {class:"btn btn-small", type:"button", text:"Leave", onclick:renderHome}),
     h("button", {class:"btn btn-small btn-primary", type:"button", text:"Keep playing", onclick:function(){ s.quit = false; renderPlay(); }})) : null;
-  root.replaceChildren(hud, quit, card, h("div", {class:"p-actions"}, actions));
+  root.replaceChildren(hud, quit || "", card, h("div", {class:"p-actions"}, actions));
   if(s.phase === "question"){ if(s.fresh){ s.fresh = false; var qh = document.getElementById("q"); if(qh) qh.focus({preventScroll:true}); } }
   else { var m = document.getElementById("main"); if(m) m.focus({preventScroll: s.phase !== "feedback"}); }
 }
