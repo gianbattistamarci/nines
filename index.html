@@ -243,228 +243,12 @@ button.stop:active{transform:translateY(2px);box-shadow:0 1px 0 var(--edge)}
 <body>
 <div class="app" id="root"></div>
 
+<script src="questions.js"></script>
 <script>
 "use strict";
 /* ---------------------------------------------------------------- content */
-var NOTICE = ["A user would notice", "A user would not notice"];
-var COURSE = [
- { n:1, title:"Does it work?", blurb:"What reliable means, seen from the user's side.", nodes:[
-  { id:"l1-1", type:"lesson", code:"1.1", title:"It just works", sub:"6 questions. No experience needed.",
-    intro:{ h:"Start here", p:"You never think about your banking app when it works. You only notice it on the day it lets you down. Reliability means software does what you expect, at the moment you need it. That is the whole subject. Let us warm up." },
-    take:"Reliable means it does what people expect, when they need it, judged from their side.",
-    qs:[
-     { type:"choice", q:"You open your banking app. Your balance shows up straight away. Right now, is the app doing its job?",
-       opts:[ {t:"Yes", ok:1},
-              {t:"No", why:"It showed you what you asked for, quickly. That is exactly what doing its job means."},
-              {t:"Impossible to say", why:"You can say. You asked for your balance and got it straight away. From where you sit, that is all that matters."} ],
-       ex:"A light switch does its job when the light comes on. You do not need to see the wiring to know it worked." },
-     { type:"choice", q:"You are at the till, paying with your phone. The payment screen spins for two minutes and the queue behind you grows. What is the real problem?",
-       opts:[ {t:"The app was not there when you needed it", ok:1},
-              {t:"Nothing. It did not show an error", why:"No error message is not the same as working. You still could not pay, and paying was the only thing you wanted."},
-              {t:"The queue was too impatient", why:"The queue is a result, not the cause. The app kept you waiting at the one moment it mattered."} ],
-       ex:"An umbrella that opens perfectly at home but jams in the rain is not a good umbrella. Software is judged at the moment you need it." },
-     { type:"sort", q:"For the person using it: working, or letting them down?", buckets:["Working","Letting them down"],
-       items:[ {t:"A map app shows your route in two seconds", b:0, why:"Fast and correct. That is working."},
-               {t:"A train app shows yesterday's timetable", b:1, why:"It opened fine, but the information is wrong. You would miss your train."},
-               {t:"A video call freezes every ten seconds", b:1, why:"It is connected, but you cannot hold a conversation."},
-               {t:"An online shop takes your order and emails a confirmation", b:0, why:"You wanted to buy something and you did."} ],
-       ex:"A taxi that turns up but drives you to the wrong address did not do its job. Showing up is not enough." },
-     { type:"choice", q:"Which word best describes software you can count on?",
-       opts:[ {t:"Reliable", ok:1},
-              {t:"Colourful", why:"Looks are nice, but they do not tell you whether it will work tomorrow morning."},
-              {t:"Brand new", why:"New things break too. Often more."},
-              {t:"Expensive", why:"Price does not keep an app running. Plenty of costly software fails."} ],
-       ex:"Think of the friend who always turns up when they say they will. That friend is reliable. Software can be that friend, or the other one." },
-     { type:"choice", q:"True or false: the most reliable app is the one with the most features.",
-       opts:[ {t:"False", ok:1},
-              {t:"True", why:"Features and reliability are different things. More features often means more things that can break."} ],
-       ex:"A pocket knife with twenty tools and a blade that snaps is worse than a plain knife that cuts. People forgive a missing feature faster than a broken one." },
-     { type:"choice", q:"A food delivery company says its system is running perfectly. Meanwhile, you have waited two hours for a pizza that never came. Who is right about whether it works?",
-       opts:[ {t:"You are. It is judged from the customer's side", ok:1},
-              {t:"The company. They can see the computers", why:"The computers can all be running while the pizza never arrives. Running is not the same as doing the job."},
-              {t:"Nobody can know", why:"You can know. You ordered a pizza and did not get one. That is a clear result."} ],
-       ex:"A restaurant kitchen can be spotless and busy. If the food never reaches your table, dinner failed. The customer's experience is the score." }
-    ]},
-  { id:"l1-2", type:"lesson", code:"1.2", title:"Three ways to fail", sub:"6 questions. Errors, slowness, wrong answers.",
-    intro:{ h:"Three ways to let you down", p:"Software can fail you in three ways. It can say no (an error). It can make you wait too long. Or it can give you the wrong answer. All three count as failing, even when nothing looks broken." },
-    take:"Errors, slowness and wrong answers are all failures. What counts is what the user sees.",
-    qs:[
-     { type:"choice", q:"You try to book a cinema ticket. The site says: 'Something went wrong. Please try again later.' Which kind of failure is this?",
-       opts:[ {t:"It said no (an error)", ok:1},
-              {t:"It was too slow", why:"It answered quickly. The answer was just 'no'."},
-              {t:"It gave a wrong answer", why:"It did not give you an answer at all. It refused. A wrong answer would be a ticket for the wrong film."} ],
-       ex:"A shop with a 'closed' sign on the door at two in the afternoon. You know right away you will not be served." },
-     { type:"choice", q:"A web page takes 40 seconds to open. You give up and close it. For you, this was...",
-       opts:[ {t:"As bad as broken", ok:1},
-              {t:"Fine, because it would have opened in the end", why:"You had already left. A page nobody waits for helps nobody."},
-              {t:"Better than an error", why:"Arguably worse. An error tells you straight away. Slowness wastes your time first."} ],
-       ex:"A lift that takes twenty minutes to arrive is not out of order, but you will take the stairs. Too slow and broken feel the same." },
-     { type:"choice", q:"Your weather app opens instantly and shows no errors. It says 'sunny all day'. You look outside: heavy rain. Did the app work?",
-       opts:[ {t:"No. A wrong answer is a failure", ok:1},
-              {t:"Yes. It was fast", why:"Fast and wrong is still wrong. You left your coat at home."},
-              {t:"Yes. There was no error message", why:"The most dangerous failures are the silent ones. Nothing warned you that the answer was wrong."} ],
-       ex:"A clock that has stopped still shows a time, very confidently. It is just not the right time." },
-     { type:"sort", q:"Something happens behind the scenes at an online shop. Would a shopper notice?", buckets:NOTICE,
-       items:[ {t:"The 'Pay now' button does nothing", b:0, why:"The shopper cannot buy. They notice immediately."},
-               {t:"One computer breaks and a spare takes over within a second", b:1, why:"The shop kept working. That is good design, and nobody outside saw a thing."},
-               {t:"Search results take 30 seconds to appear", b:0, why:"Waiting half a minute for search results feels broken."},
-               {t:"A storage disk is half full", b:1, why:"Half full is normal. Nothing has changed for the shopper."} ],
-       ex:"In a theatre, a stagehand can trip backstage and the audience never knows. If an actor forgets their lines, everyone knows. Reliability work starts with what the audience sees." },
-     { type:"choice", q:"True or false: if all the company's computers are switched on and running, the customers must be happy.",
-       opts:[ {t:"False", ok:1},
-              {t:"True", why:"Computers can be running while the thing customers want still fails. Running is not the same as working."} ],
-       ex:"A shop can have every light on and staff behind the counter. If the front door is locked, nobody is buying anything." },
-     { type:"choice", q:"You run a small online shop. What is the best way to know it is working?",
-       opts:[ {t:"Check that people can actually buy things", ok:1},
-              {t:"Check that the computers are switched on", why:"That tells you the lights are on, not that the door is open."},
-              {t:"Wait for angry emails", why:"By then customers have already been let down, and most of them leave without writing."} ],
-       ex:"A baker does not look at the oven light to know the bread is good. They taste the bread." }
-    ]},
-  { id:"l1-3", type:"lesson", code:"1.3", title:"Good enough", sub:"6 questions. Reliability as a number.",
-    intro:{ h:"Nothing works every time", p:"Lifts get stuck. Trains run late. Apps fail now and then. So instead of asking 'does it work?', we count: out of 100 tries, how many worked? That number is how reliability is measured." },
-    take:"Reliability is a number: how many tries out of 100 worked. The goal is enough, not perfect.",
-    qs:[
-     { type:"choice", q:"This week the office coffee machine was used 100 times. It worked 98 times. How often did it work?",
-       opts:[ {t:"98 out of 100", ok:1},
-              {t:"2 out of 100", why:"That is how often it failed. It worked the other 98 times."},
-              {t:"100 out of 100", why:"It failed twice, so not every time."} ],
-       ex:"Like a striker who scores 98 of 100 penalties. You describe them by the ones that went in." },
-     { type:"choice", q:"Which sentence tells you most about how reliable an app is?",
-       opts:[ {t:"It works 99 times out of 100", ok:1},
-              {t:"It works pretty well", why:"'Pretty well' means something different to everyone. You cannot check it or improve on it."},
-              {t:"People seem to like it", why:"Liking an app and the app working are different things, and 'seem to' is a guess."} ],
-       ex:"'The trains are usually fine' starts an argument. '93 of 100 trains arrived on time' ends one. Numbers let people agree." },
-     { type:"order", q:"Not everything needs the same reliability. Put these in order, from 'must almost never fail' to 'can fail now and then'.",
-       items:["The emergency phone line","Paying by card in a shop","A photo filter app"],
-       why:"The more harm a failure does, the more reliability is worth paying for.",
-       ex:"A hospital has a backup generator. Your garden shed does not. Both choices are sensible." },
-     { type:"choice", q:"A team says: 'Our music app must never fail. Not once. Ever.' What is wrong with that goal?",
-       opts:[ {t:"Never failing is impossible to promise, and chasing it costs a fortune", ok:1},
-              {t:"Nothing. That is the right goal", why:"It sounds right, but nothing built by people works every single time. The closer you get to perfect, the more each small step costs."},
-              {t:"Music apps do not matter", why:"They matter to the people using them. The problem is the word 'never', not the app."} ],
-       ex:"A train company that is never late, not even once, would need spare trains, spare drivers and spare track everywhere. Tickets would cost several times as much." },
-     { type:"choice", q:"Your home wifi drops out about once in every 100 tries. An app improves from working 999 times in 1,000 to working 9,999 times in 10,000. Would you notice?",
-       opts:[ {t:"No. The wifi fails far more often than the app", ok:1},
-              {t:"Yes. It became ten times better", why:"On paper, yes. In your living room the wifi still drops once in 100 tries, and that is what you feel."},
-              {t:"Yes. Every improvement shows", why:"Only when the app is the weakest part. Here the wifi is."} ],
-       ex:"Polishing a car that is already clean does not get you to work faster when the road is full of holes. Past a certain point, more reliability cannot be felt." },
-     { type:"choice", q:"So what is a sensible goal for most software?",
-       opts:[ {t:"Reliable enough that users are happy, and no more", ok:1},
-              {t:"Perfect, whatever it costs", why:"The cost is real: money, and time not spent making the product better. Users cannot feel the last tiny step anyway."},
-              {t:"As cheap as possible. Reliability can wait", why:"Too far the other way. If people cannot count on it, they leave."} ],
-       ex:"You buy a good lock for your front door. You do not hire ten guards. Good enough for the risk is the smart choice." }
-    ]},
-  { id:"x-a", type:"exam", code:"A", title:"Checkpoint A", sub:"10 questions. Pass mark 80%. Earns the rank Observer.", pass:80,
-    intro:{ h:"Checkpoint A", p:"Ten questions on everything so far. No second tries this time, but you still get the explanation after each answer. You need 8 out of 10 to pass. Notice the pass mark is not 10 out of 10. Good enough is the point." },
-    qs:[
-     { from:"l1-2", type:"choice", q:"A parcel app says 'Delivered'. There is no parcel at your door. What kind of failure is this?",
-       opts:[ {t:"A wrong answer", ok:1},
-              {t:"Too slow", why:"The app answered right away. The answer was just not true."},
-              {t:"An error message", why:"There was no error message. It told you, confidently, something that was wrong."} ],
-       ex:"A sat nav that calmly says 'you have arrived' in the middle of a field." },
-     { from:"l1-1", type:"choice", q:"The team's screens are all green. At the same time, customers are phoning to say they cannot log in. What is true?",
-       opts:[ {t:"Something is broken. The customers' experience is what counts", ok:1},
-              {t:"Everything is fine. The screens say so", why:"The screens only show what somebody thought to measure. The customers are showing you what was missed."},
-              {t:"The customers are probably making mistakes", why:"One customer, maybe. Many at once means the problem is on your side."} ],
-       ex:"A pilot whose instruments say all is well, while passengers can see smoke from the window, should look out of the window." },
-     { from:"l1-3", type:"choice", q:"A chat app sent 1,000 messages. 995 arrived. How often did it work?",
-       opts:[ {t:"995 out of 1,000", ok:1},
-              {t:"5 out of 1,000", why:"That is how many got lost. The other 995 arrived."},
-              {t:"1,000 out of 1,000", why:"Five messages never arrived, so it was not every time."} ],
-       ex:"A postman who delivers 995 of 1,000 letters. Good work, with five people still waiting." },
-     { from:"l1-2", type:"sort", q:"A streaming service has a busy evening. Which of these would a viewer notice?", buckets:NOTICE,
-       items:[ {t:"The film stops every minute to load", b:0, why:"Constant pauses ruin the film."},
-               {t:"A backup machine takes over in one second", b:1, why:"The viewer saw nothing. The backup did its job."},
-               {t:"The 'Play' button shows an error", b:0, why:"They cannot watch at all."},
-               {t:"An engineer tidies up old files", b:1, why:"Housekeeping behind the scenes changes nothing on screen."} ],
-       ex:"Hotel guests notice a cold shower. They do not notice the plumber who fixed a spare pump at three in the morning." },
-     { from:"l1-2", type:"choice", q:"True or false: for the person waiting, 'far too slow' can be just as bad as 'broken'.",
-       opts:[ {t:"True", ok:1},
-              {t:"False", why:"If you give up before it finishes, the result for you is the same. You did not get what you came for."} ],
-       ex:"A waiter who brings your meal after two hours has not really served you dinner." },
-     { from:"l1-3", type:"choice", q:"Which goal is the most sensible for a taxi app?",
-       opts:[ {t:"At least 999 of every 1,000 ride requests go through", ok:1},
-              {t:"No ride request ever fails", why:"'Ever' cannot be promised. One dropped phone signal breaks it, and trying to prevent every such case costs a fortune."},
-              {t:"Rides work most of the time", why:"'Most' could mean 51 in 100 or 99 in 100. Nobody can check it or be held to it."} ],
-       ex:"A good goal is like a speed limit: a clear number everyone can see and measure." },
-     { from:"l1-3", type:"order", q:"Put these in order, from 'must almost never fail' to 'can fail now and then'.",
-       items:["A hospital heart monitor","A supermarket's online checkout","A game's list of top scores"],
-       why:"The more harm a failure does, the more reliability is worth paying for.",
-       ex:"You insure a house for more than a bicycle. Protection should match what is at stake." },
-     { from:"l1-1", type:"choice", q:"An app added 50 new features this year. It also crashes every morning at nine. Is it reliable?",
-       opts:[ {t:"No. It fails when people need it", ok:1},
-              {t:"Yes. It keeps improving", why:"New features do not make up for failing every morning. Nobody can use a feature in an app that is down."},
-              {t:"Yes, apart from the mornings", why:"Mornings are when people use it. Reliable only when nobody is looking is not reliable."} ],
-       ex:"A bakery with fifty kinds of bread that is closed at breakfast time." },
-     { from:"l1-2", type:"choice", q:"You are in charge of a video call app. Which single thing tells you best whether it is working?",
-       opts:[ {t:"How many calls connect and stay clear", ok:1},
-              {t:"How many computers are switched on", why:"Computers can be on while calls fail. That measures your equipment, not your users' experience."},
-              {t:"How many people work on the team", why:"Team size says nothing about whether tonight's call to grandma will connect."} ],
-       ex:"A restaurant counts happy tables, not how many ovens it owns." },
-     { from:"l1-3", type:"choice", q:"A shop took 200 card payments today. 4 failed. A manager says: 'Four failures is terrible. We need zero.' What is the best reply?",
-       opts:[ {t:"196 of 200 worked. Let us agree what number is good enough, then aim for that", ok:1},
-              {t:"Agreed. Zero failures from now on", why:"Zero forever cannot be promised. Cards get declined and phones lose signal. A goal nobody can reach helps nobody."},
-              {t:"Four is nothing. Ignore it", why:"Maybe, maybe not. Without an agreed target nobody knows whether 196 of 200 is good or bad. That is the missing piece."} ],
-       ex:"Before arguing about whether the train service is good, agree what good means: say, 95 of 100 on time. Then the number settles it." }
-    ]}
- ]},
- { n:2, title:"Set a target", blurb:"The two terms engineers use every day: the number you measure and the number you aim for.", nodes:[
-  { id:"l2-1", type:"lesson", code:"2.1", title:"Measure, then aim", sub:"6 questions. Your first real SRE terms.",
-    intro:{ h:"Two numbers", p:"You know reliability is a number. Now for the two terms engineers use every day. The number you measure is called an indicator. The number you aim for is called an objective. Measure first, then aim." },
-    take:"SLI: the number you measure. SLO: the number you aim for. Compare them to know where you stand.",
-    qs:[
-     { type:"choice", q:"A train company measures how many trains arrive on time. Last month it was 93 out of 100. What is the 93?",
-       opts:[ {t:"A measurement of what actually happened", ok:1},
-              {t:"A promise to passengers", why:"Nobody promised 93. It is simply what happened last month."},
-              {t:"A goal for next month", why:"A goal looks forward. This number looks back at what already happened."} ],
-       ex:"Stepping on the scales gives you a measurement. Deciding what you want to weigh is a different thing." },
-     { type:"choice", q:"The company then decides: 'We want at least 95 of every 100 trains on time.' What is the 95?",
-       opts:[ {t:"A target to aim for", ok:1},
-              {t:"A measurement", why:"Nothing has been measured yet. This is what they want, not what they got."},
-              {t:"The number of trains they own", why:"It is a share of trains arriving on time, not a count of trains."} ],
-       ex:"The scales show 82 kilos: a measurement. 'I want to be 78': a target. You need both to know how you are doing." },
-     { type:"choice", q:"Engineers call the measurement an SLI, short for service level indicator. Which of these is an SLI?",
-       opts:[ {t:"97 of 100 logins worked last week", ok:1},
-              {t:"At least 99 of 100 logins should work", why:"'Should' gives it away. That is a target, not a measurement."},
-              {t:"We added a new login button", why:"That is a change to the product. An indicator is a number that shows how well it works."} ],
-       ex:"The speedometer in a car is an indicator. It tells you what is happening." },
-     { type:"choice", q:"The target has a name too: an SLO, short for service level objective. Which of these is an SLO?",
-       opts:[ {t:"99 of every 100 payments should go through", ok:1},
-              {t:"98 of 100 payments went through yesterday", why:"That is what happened. It is a measurement, so an indicator."},
-              {t:"Payments are very important to us", why:"True, but there is no number in it. An objective needs a number you can check."} ],
-       ex:"The speed limit sign is the objective. The speedometer is the indicator. You compare one with the other." },
-     { type:"sort", q:"Indicator or objective?", buckets:["Indicator (measured)","Objective (aimed for)"],
-       items:[ {t:"9 of 10 pages opened within two seconds yesterday", b:0, why:"It describes yesterday. That is a measurement."},
-               {t:"95 of 100 pages should open within two seconds", b:1, why:"'Should' makes it a target."},
-               {t:"999 of 1,000 messages arrived last month", b:0, why:"It already happened, so it is a measurement."},
-               {t:"At least 99 of 100 video calls should connect", b:1, why:"It says what the team aims for."} ],
-       ex:"A school report shows the marks you got. The pass mark is what you needed. Indicator, objective." },
-     { type:"choice", q:"The objective is 99 of 100 payments. This week, 97 of 100 went through. What should the team do?",
-       opts:[ {t:"Focus on making payments more reliable. They are below target", ok:1},
-              {t:"Nothing. 97 is a high number", why:"High compared with what? The agreed target is 99, and 97 is under it."},
-              {t:"Lower the objective to 97 so it matches", why:"Moving the goalposts hides the problem. The target was chosen for the users, and they are getting less."} ],
-       ex:"If the pass mark is 80 and you score 70, you revise. You do not ask the teacher to change the pass mark." }
-    ]}
- ]}
-];
-var LATER = [
- {k:"2.2 to 2.4", t:"Why not 100%, the error budget, spend it or save it"},
- {k:"Checkpoint B", t:"Exam on targets and budgets", exam:1},
- {k:"Unit 3", t:"Watching the system: signals, symptoms and causes"},
- {k:"Unit 4", t:"Alarms worth waking up for"},
- {k:"Checkpoint C", t:"Exam on watching and alerting", exam:1},
- {k:"Unit 5", t:"Boring work, and how to get rid of it"},
- {k:"Unit 6", t:"On call without burning out"},
- {k:"Unit 7", t:"When it breaks: running an incident"},
- {k:"Unit 8", t:"Learning without blame"},
- {k:"Checkpoint D", t:"Exam on incidents", exam:1},
- {k:"Unit 9", t:"Changing things safely"},
- {k:"Unit 10", t:"Built to bend, not break"},
- {k:"Unit 11", t:"Teams and trust"},
- {k:"Unit 12", t:"The hard parts"},
- {k:"Unit 13", t:"AI at the controls"},
- {k:"Final exam", t:"Everything, mixed", exam:1}
-];
+/* The lessons and exams (NOTICE, COURSE and LATER) live in questions.js, loaded just above this script. */
+if(typeof COURSE === "undefined"){ document.getElementById("root").textContent = "The file questions.js could not be loaded. It must sit in the same folder as index.html."; throw new Error("questions.js missing"); }
 /* Ranks are earned by passing checkpoints, so each title says what the player can now do. */
 var RANKS = [
  { name:"Newcomer" },
@@ -706,10 +490,22 @@ function prep(q){
   if(q.type === "order"){ var pool; do { pool = shuffle(q.items); } while(pool.join("|") === q.items.join("|")); p.pool = pool; p.sel = []; }
   return p;
 }
+/* An entry in a lesson's qs is one question, or a list of versions of the same idea. Each play draws one
+   version per idea and avoids the version shown last time, so a replay is not a repeat. */
+var lastDraw = {};
+function draw(key, slot){
+  if(!Array.isArray(slot)) return slot;
+  var i = Math.floor(Math.random() * slot.length);
+  if(slot.length > 1 && i === lastDraw[key]) i = (i + 1) % slot.length;
+  lastDraw[key] = i;
+  return slot[i];
+}
 function start(node){
   var ex = node.type === "exam";
-  sess = { node:node, exam:ex, full: ex ? !(S.exams[node.id] && S.exams[node.id].passed) : !S.done[node.id],
-    queue: node.qs.map(function(_, i){ return i; }), total:node.qs.length, resolved:0, mistakes:0, missed:{}, results:[],
+  var qs = node.qs.map(function(slot, i){ return draw(node.id + ":" + i, slot); });
+  if(ex) qs = shuffle(qs);
+  sess = { node:node, exam:ex, full: ex ? !(S.exams[node.id] && S.exams[node.id].passed) : !S.done[node.id], qs:qs,
+    queue: qs.map(function(_, i){ return i; }), total:qs.length, resolved:0, mistakes:0, missed:{}, results:[],
     xp:0, combo:0, phase:"intro", cur:null, p:null, last:null, quit:false, fresh:false };
   renderPlay();
   window.scrollTo(0, 0);
@@ -720,7 +516,7 @@ function ready(){ var p = sess.p; if(!p) return false;
   return p.sel.length === p.q.items.length; }
 function advance(){
   if(!sess.queue.length){ sess.phase = "result"; finish(); }
-  else { sess.cur = sess.queue.shift(); sess.p = prep(sess.node.qs[sess.cur]); sess.phase = "question"; sess.fresh = true; }
+  else { sess.cur = sess.queue.shift(); sess.p = prep(sess.qs[sess.cur]); sess.phase = "question"; sess.fresh = true; }
   renderPlay();
   window.scrollTo(0, 0);
 }
@@ -813,9 +609,9 @@ function viewFeedback(){
       kids.push(h("div", null, h("span", {class:"lab", text:"What to change"}), ul));
     } else {
       kids.push(h("p", null, h("span", {class:"lab", text:"The right order"}), q.items.join(", then ") + "."));
-      kids.push(h("p", null, h("span", {class:"lab", text:"Why?"}), q.why));
     }
   }
+  if(q.point) kids.push(h("p", null, h("span", {class:"lab", text:"The point"}), q.point));
   kids.push(h("p", null, h("span", {class:"lab", text:"Picture it"}), q.ex));
   if(ok && L.gain) kids.push(h("span", {class:"note", text:"+" + L.gain + " points" + (L.bonus ? " (includes +" + L.bonus + " for " + sess.combo + " in a row)" : "")}));
   if(!ok && !sess.exam) kids.push(h("span", {class:"note", text:"You will get another go at this one before the stop ends."}));
