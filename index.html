@@ -1,0 +1,902 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Nines</title>
+<meta name="description" content="Nines: learn site reliability engineering, one short lesson at a time.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+body{margin:0;font:14px system-ui,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<style>
+/* Layout: pressable stop cards wind down the page as one line of progress, and a score bar stays pinned
+   to the top of every screen. Confident colour and solid shapes, no mascots or decoration. */
+:root{
+  font-size:112.5%;
+  --bg:#F3F5F9; --surface:#FFFFFF; --ink:#141C2E; --muted:#4A5568; --edge:#D3DAE6; --track:#D3DAE6;
+  --blue:#1F5FE0; --blue-d:#1746AB; --on-blue:#FFFFFF; --blue-soft:#E4ECFD;
+  --teal:#0B7F70; --teal-d:#075E53; --on-teal:#FFFFFF;
+  --grape:#6D43D9; --grape-d:#4E2CA8; --on-grape:#FFFFFF;
+  --sun:#FFC83D; --sun-d:#D99A00; --on-sun:#3A2A00; --sun-soft:#FFF3CC; --sun-ring:#FFE49A; --star:#C28200; --flame:#E8590C;
+  --good:#0E6E34; --good-bg:#DDF7E6; --good-solid:#1FA85B; --good-d:#157F43; --on-good:#FFFFFF;
+  --bad:#A82219; --bad-bg:#FFE5E2; --bad-solid:#E5484D; --bad-d:#B4282D; --on-bad:#FFFFFF;
+  --display:"Plus Jakarta Sans","Inter",system-ui,sans-serif;
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101A2E; --surface:#1B2944; --ink:#F2F6FF; --muted:#AEBCD9; --edge:#34496F; --track:#34496F;
+    --blue:#5B9DFF; --blue-d:#2F6FD6; --on-blue:#06122B; --blue-soft:#20365F;
+    --teal:#3CCFB9; --teal-d:#1F9E8C; --on-teal:#04241F;
+    --grape:#AD92FF; --grape-d:#7B5BE0; --on-grape:#150A3A;
+    --sun:#FFC83D; --sun-d:#D99A00; --on-sun:#3A2A00; --sun-soft:#3B3110; --sun-ring:#6B5613; --star:#FFC83D; --flame:#FF8A4C;
+    --good:#7BE6AA; --good-bg:#12392A; --good-solid:#35C777; --good-d:#229453; --on-good:#04220F;
+    --bad:#FFA39A; --bad-bg:#47201F; --bad-solid:#FF7A75; --bad-d:#D14A46; --on-bad:#2B0706;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101A2E; --surface:#1B2944; --ink:#F2F6FF; --muted:#AEBCD9; --edge:#34496F; --track:#34496F;
+  --blue:#5B9DFF; --blue-d:#2F6FD6; --on-blue:#06122B; --blue-soft:#20365F;
+  --teal:#3CCFB9; --teal-d:#1F9E8C; --on-teal:#04241F;
+  --grape:#AD92FF; --grape-d:#7B5BE0; --on-grape:#150A3A;
+  --sun:#FFC83D; --sun-d:#D99A00; --on-sun:#3A2A00; --sun-soft:#3B3110; --sun-ring:#6B5613; --star:#FFC83D; --flame:#FF8A4C;
+  --good:#7BE6AA; --good-bg:#12392A; --good-solid:#35C777; --good-d:#229453; --on-good:#04220F;
+  --bad:#FFA39A; --bad-bg:#47201F; --bad-solid:#FF7A75; --bad-d:#D14A46; --on-bad:#2B0706;
+  color-scheme:dark;
+}
+:root.big{font-size:131.25%}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-weight:500;font-size:1rem;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top, 0px);z-index:10;background:var(--bg)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--ink);outline-offset:3px;border-radius:8px}
+[tabindex="-1"]:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.ic{width:1.3em;height:1.3em;flex:none}
+
+.app{max-width:680px;margin-inline:auto;padding-block:0 56px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));
+  display:flex;flex-direction:column;gap:20px}
+
+/* Score bar, pinned to the top of every screen */
+.hud{position:sticky;top:env(safe-area-inset-top, 0px);z-index:5;background:var(--bg);padding-block:12px 10px;display:flex;flex-direction:column;gap:10px}
+.hud-row{display:flex;align-items:center;gap:10px 12px;flex-wrap:wrap;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:800;font-size:1.3rem;line-height:1.1;margin:0}
+.tag{font-family:var(--body);font-weight:800;font-size:.7rem;background:var(--sun);color:var(--on-sun);padding:2px 9px;border-radius:999px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{position:relative;display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:2px solid var(--edge);border-radius:999px;padding:3px 12px 3px 8px;min-height:38px}
+.chip b{font-family:var(--display);font-weight:700;font-size:1.15rem;font-variant-numeric:tabular-nums;line-height:1}
+.chip .lbl{font-weight:700;font-size:.8rem;color:var(--muted)}
+.c-pts .ic,.c-stars .ic{color:var(--star)} .c-streak .ic{color:var(--flame)}
+.c-combo{background:var(--sun);border-color:var(--sun-d);color:var(--on-sun);padding-left:12px}
+.c-combo .lbl{color:var(--on-sun)}
+.chip.pop{animation:pop .45s ease}
+.fly{position:absolute;right:6px;top:-8px;font-family:var(--display);font-weight:800;font-size:1.1rem;color:var(--good);pointer-events:none;animation:fly 1.2s ease-out forwards}
+@keyframes pop{50%{transform:scale(1.14)}}
+@keyframes fly{0%{opacity:0;transform:translateY(8px)}20%{opacity:1;transform:translateY(-4px)}100%{opacity:0;transform:translateY(-26px)}}
+@media (max-width:440px){.chip .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)} .c-combo .lbl{position:static;width:auto;height:auto;clip-path:none}}
+.rank{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;font-size:.85rem;font-weight:800;color:var(--muted)}
+.meter{flex:1;min-width:60px;height:12px;border-radius:6px;background:var(--track);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--sun);border-radius:6px}
+
+/* Buttons: chunky and pressable */
+.btn{font-family:var(--display);font-weight:700;font-size:1.1rem;line-height:1.2;border:0;border-radius:12px;padding:12px 22px;min-height:52px;cursor:pointer;
+  background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 2px var(--edge),0 3px 0 var(--edge);margin-bottom:5px}
+.btn:active:not([disabled]){transform:translateY(2px);box-shadow:inset 0 0 0 2px var(--edge),0 1px 0 var(--edge)}
+.btn-primary{background:var(--blue);color:var(--on-blue);box-shadow:0 3px 0 var(--blue-d)}
+.btn-primary:active:not([disabled]){box-shadow:0 1px 0 var(--blue-d)}
+.btn-primary:hover:not([disabled]){filter:brightness(1.07)}
+.btn[disabled]{background:var(--track);color:var(--muted);box-shadow:none;cursor:not-allowed;transform:translateY(3px)}
+.btn-small{font-size:.95rem;min-height:42px;padding:8px 16px;border-radius:12px}
+.linkish{background:none;border:0;padding:6px 2px;color:var(--muted);text-decoration:underline;cursor:pointer;font-weight:700;font-size:.9rem}
+
+/* Next-up panel */
+.hero{display:flex}
+.bubble{position:relative;flex:1;min-width:0;background:var(--surface);border:3px solid var(--edge);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.bubble p{margin:0;font-size:1.05rem}
+.bubble strong{font-family:var(--display);font-weight:800;font-size:1.35rem;line-height:1.15;display:block}
+
+/* The path */
+.path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;--step:26px}
+@media (max-width:560px){.path{--step:0px}}
+.banner{border-radius:14px;padding:16px 20px;background:var(--unit);color:var(--on-unit);box-shadow:0 3px 0 var(--unit-d);margin-block:18px 6px}
+.path li:first-child .banner{margin-top:0}
+.u1{--unit:var(--blue);--unit-d:var(--blue-d);--on-unit:var(--on-blue)}
+.u2{--unit:var(--teal);--unit-d:var(--teal-d);--on-unit:var(--on-teal)}
+.banner .k{font-weight:800;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase}
+.banner h2{font-family:var(--display);font-weight:800;font-size:1.55rem;line-height:1.1;margin:0;text-wrap:balance}
+.banner p{margin:4px 0 0;font-weight:700}
+.stop-li{padding-left:var(--sx, 0px)}
+.conn{display:block;width:8px;height:18px;margin:5px 0 5px 39px;border-radius:4px;background:var(--track)}
+.conn.on{background:var(--good-solid)}
+.stop{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;width:100%;text-align:left;
+  background:var(--surface);border:3px solid var(--edge);border-radius:14px;padding:12px 16px 12px 12px;box-shadow:0 3px 0 var(--edge);margin-bottom:5px}
+button.stop{cursor:pointer}
+button.stop:hover{border-color:var(--blue)}
+button.stop:active{transform:translateY(2px);box-shadow:0 1px 0 var(--edge)}
+.stop.now{border-color:var(--blue);box-shadow:0 3px 0 var(--blue-d)}
+.stop.locked{background:transparent;border-style:dashed;box-shadow:none}
+.badge{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:1.2rem;background:var(--track);color:var(--muted)}
+.badge .ic{width:28px;height:28px}
+.exam .badge{border-radius:12px}
+.done .badge{background:var(--good-solid);color:var(--on-good)}
+.now .badge{background:var(--blue);color:var(--on-blue);box-shadow:0 0 0 5px var(--blue-soft)}
+.now.exam .badge{background:var(--grape);color:var(--on-grape)}
+.stop-t{display:block;font-family:var(--display);font-weight:700;font-size:1.2rem;line-height:1.2}
+.stop-s{display:block;color:var(--muted);font-size:.9rem;font-weight:700}
+.locked .stop-t{color:var(--muted)}
+.stop-r{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-weight:800;font-size:.85rem;color:var(--muted);white-space:nowrap}
+.go{font-family:var(--display);font-weight:700;font-size:1rem;background:var(--blue);color:var(--on-blue);border-radius:999px;padding:5px 16px}
+.stars{color:var(--star);font-size:1.3rem;letter-spacing:1px;line-height:1}
+
+.later{background:var(--surface);border:3px dashed var(--edge);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.later h2{font-family:var(--display);font-weight:800;font-size:1.25rem;margin:0}
+.later ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px 16px}
+.later li{display:flex;gap:8px;align-items:flex-start;color:var(--muted);font-size:.92rem;font-weight:700;min-width:0}
+.later .ic{width:18px;height:18px;margin-top:3px}
+
+.foot{display:flex;gap:10px 18px;flex-wrap:wrap;align-items:center;justify-content:space-between;color:var(--muted);font-size:.9rem;font-weight:700}
+.save{display:inline-flex;align-items:center;gap:8px}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--muted);flex:none}
+.dot.ok{background:var(--good-solid)} .dot.warn{background:var(--sun-d)} .dot.bad{background:var(--bad-solid)}
+.foot-r{display:flex;gap:6px 18px;flex-wrap:wrap;align-items:center}
+.confirm{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--surface);border:3px solid var(--edge);border-radius:12px;padding:12px 16px;font-weight:700}
+
+/* Player */
+.xbtn{width:46px;height:46px;border-radius:50%;border:2px solid var(--edge);background:var(--surface);display:grid;place-items:center;cursor:pointer;flex:none}
+.xbtn:hover{border-color:var(--blue)}
+.bar{flex:1;min-width:80px;height:22px;border-radius:11px;background:var(--track);overflow:hidden}
+.bar i{display:block;height:100%;min-width:0;background:var(--good-solid);border-radius:11px;transition:width .4s cubic-bezier(.3,1.4,.6,1);box-shadow:inset 0 -6px 0 var(--good-d)}
+.count{font-family:var(--display);font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.card{background:var(--surface);border:3px solid var(--edge);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:16px}
+.where{font-weight:800;font-size:.85rem;color:var(--muted);margin:0}
+.q{font-family:var(--display);font-weight:700;font-size:1.45rem;line-height:1.25;margin:0;text-wrap:balance}
+.hint{margin:0;color:var(--muted);font-size:.92rem;font-weight:700}
+.opts{display:flex;flex-direction:column;gap:12px}
+.opt{display:flex;gap:12px;align-items:center;text-align:left;width:100%;min-height:62px;border:3px solid var(--edge);background:var(--surface);color:var(--ink);
+  border-radius:12px;padding:12px 14px;font-weight:700;cursor:pointer;box-shadow:0 3px 0 var(--edge);margin-bottom:4px}
+.opt:hover:not([disabled]){border-color:var(--blue)}
+.opt:active:not([disabled]){transform:translateY(2px);box-shadow:0 1px 0 var(--edge)}
+.opt .key{width:34px;height:34px;border-radius:50%;border:2px solid var(--edge);display:grid;place-items:center;font-family:var(--display);font-weight:700;color:var(--muted);flex:none}
+.opt .key .ic{width:20px;height:20px}
+.opt[aria-checked="true"]{border-color:var(--blue);background:var(--blue-soft);box-shadow:0 3px 0 var(--blue-d)}
+.opt[aria-checked="true"] .key{background:var(--blue);border-color:var(--blue);color:var(--on-blue)}
+.opt[disabled]{cursor:default;color:var(--muted)}
+.opt.is-right{border-color:var(--good-solid);background:var(--good-bg);box-shadow:0 3px 0 var(--good-d);color:var(--ink)}
+.opt.is-right .key{background:var(--good-solid);border-color:var(--good-solid);color:var(--on-good)}
+.opt.is-wrong{border-color:var(--bad-solid);background:var(--bad-bg);box-shadow:0 3px 0 var(--bad-d);color:var(--ink)}
+.opt.is-wrong .key{background:var(--bad-solid);border-color:var(--bad-solid);color:var(--on-bad)}
+
+.sortrow{display:flex;flex-direction:column;gap:10px;border:3px solid var(--edge);border-radius:12px;padding:12px 14px;font-weight:700}
+.sortrow.is-right{border-color:var(--good-solid);background:var(--good-bg)}
+.sortrow.is-wrong{border-color:var(--bad-solid);background:var(--bad-bg)}
+.sortrow .mark{display:flex;gap:8px;align-items:flex-start}
+.sortrow.is-right .ic{color:var(--good)} .sortrow.is-wrong .ic{color:var(--bad)}
+.pick{display:flex;gap:8px;flex-wrap:wrap}
+.pick button{border:2px solid var(--edge);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 16px;font-weight:800;font-size:.92rem;cursor:pointer;min-height:42px;box-shadow:0 3px 0 var(--edge);margin-bottom:3px}
+.pick button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--on-blue);box-shadow:0 3px 0 var(--blue-d)}
+.pick button[disabled]{cursor:default}
+.pick button[disabled][aria-pressed="false"]{color:var(--muted);box-shadow:none}
+
+.slots{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:slot}
+.slots li{counter-increment:slot;display:flex;align-items:center;gap:12px;border:3px dashed var(--edge);border-radius:12px;padding:8px 14px;min-height:58px;font-weight:700}
+.slots li::before{content:counter(slot);font-family:var(--display);font-weight:800;font-size:1.2rem;color:var(--muted);width:22px;flex:none}
+.slots li.filled{border-style:solid;border-color:var(--blue);background:var(--blue-soft)}
+.slots li.is-right{border-style:solid;border-color:var(--good-solid);background:var(--good-bg)}
+.slots li.is-wrong{border-style:solid;border-color:var(--bad-solid);background:var(--bad-bg)}
+.slots button{border:0;background:none;padding:6px 0;flex:1;text-align:left;font-weight:700;color:var(--ink);cursor:pointer;min-height:40px}
+.slots button[disabled]{cursor:default}
+.pool{display:flex;gap:10px;flex-wrap:wrap;min-height:50px}
+.pool button{border:3px solid var(--edge);background:var(--surface);color:var(--ink);border-radius:12px;padding:8px 14px;font-weight:700;cursor:pointer;min-height:46px;box-shadow:0 3px 0 var(--edge);margin-bottom:4px}
+.pool button:hover{border-color:var(--blue)}
+
+.fb{border:3px solid;border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.fb.ok{background:var(--good-bg);border-color:var(--good-solid)} .fb.no{background:var(--bad-bg);border-color:var(--bad-solid)}
+.fb-head{display:flex;gap:12px;align-items:center}
+.fb h3{margin:0;font-family:var(--display);font-weight:800;font-size:1.5rem;line-height:1.1;display:flex;gap:8px;align-items:center}
+.fb.ok h3{color:var(--good)} .fb.no h3{color:var(--bad)}
+.fb p{margin:0}
+.fb .lab{display:block;font-weight:800;font-size:.85rem;color:var(--muted)}
+.fb ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.fb .note{font-weight:800;font-size:.9rem;color:var(--muted)}
+.p-actions{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;align-items:center}
+.btn-big{min-width:200px;font-size:1.2rem}
+@media (max-width:520px){.p-actions .btn{flex:1}}
+
+.intro{flex-direction:row;align-items:flex-end;gap:16px}
+.intro > div{display:flex;flex-direction:column;gap:12px;min-width:0}
+.intro h2,.result h2{font-family:var(--display);font-weight:800;font-size:1.7rem;line-height:1.15;margin:0;text-wrap:balance}
+.intro p,.result p{margin:0;max-width:58ch}
+@media (max-width:520px){.intro{flex-direction:column;align-items:flex-start}}
+.result{align-items:center;text-align:center}
+.bigstars{display:flex;gap:10px;font-size:3.2rem;line-height:1;color:var(--star)}
+.bigstars span{animation:starin .5s cubic-bezier(.3,1.6,.6,1) both}
+.bigstars span:nth-child(2){animation-delay:.18s} .bigstars span:nth-child(3){animation-delay:.36s}
+@keyframes starin{from{opacity:0;transform:scale(.2) rotate(-40deg)}}
+.bigscore{font-family:var(--display);font-weight:800;font-size:3.4rem;line-height:1;font-variant-numeric:tabular-nums}
+.tally{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:0}
+.tally div{background:var(--blue-soft);border-radius:12px;padding:8px 16px;min-width:0}
+.tally dt{font-weight:800;font-size:.8rem;color:var(--muted)}
+.tally dd{margin:0;font-family:var(--display);font-weight:700;font-size:1.35rem;font-variant-numeric:tabular-nums}
+.take{background:var(--sun-soft);border-radius:12px;padding:14px 18px;text-align:left;align-self:stretch}
+.take b{display:block;font-weight:800;font-size:.85rem;color:var(--muted)}
+.review{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:.95rem;text-align:left;align-self:stretch}
+.review li{display:flex;gap:10px;align-items:flex-start}
+.review .y{color:var(--good)} .review .n{color:var(--bad)}
+.review .ic{margin-top:2px}
+.pass{color:var(--good)} .fail{color:var(--bad)}
+
+.unitdone{margin:0;font-family:var(--display);font-weight:800;font-size:.9rem;background:var(--sun);color:var(--on-sun);border-radius:999px;padding:4px 16px}
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:20}
+.confetti i{position:absolute;top:-24px;width:9px;height:15px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="app" id="root"></div>
+
+<script>
+"use strict";
+/* ---------------------------------------------------------------- content */
+var NOTICE = ["A user would notice", "A user would not notice"];
+var COURSE = [
+ { n:1, title:"Does it work?", blurb:"What reliable means, seen from the user's side.", nodes:[
+  { id:"l1-1", type:"lesson", code:"1.1", title:"It just works", sub:"6 questions. No experience needed.",
+    intro:{ h:"Start here", p:"You never think about your banking app when it works. You only notice it on the day it lets you down. Reliability means software does what you expect, at the moment you need it. That is the whole subject. Let us warm up." },
+    take:"Reliable means it does what people expect, when they need it, judged from their side.",
+    qs:[
+     { type:"choice", q:"You open your banking app. Your balance shows up straight away. Right now, is the app doing its job?",
+       opts:[ {t:"Yes", ok:1},
+              {t:"No", why:"It showed you what you asked for, quickly. That is exactly what doing its job means."},
+              {t:"Impossible to say", why:"You can say. You asked for your balance and got it straight away. From where you sit, that is all that matters."} ],
+       ex:"A light switch does its job when the light comes on. You do not need to see the wiring to know it worked." },
+     { type:"choice", q:"You are at the till, paying with your phone. The payment screen spins for two minutes and the queue behind you grows. What is the real problem?",
+       opts:[ {t:"The app was not there when you needed it", ok:1},
+              {t:"Nothing. It did not show an error", why:"No error message is not the same as working. You still could not pay, and paying was the only thing you wanted."},
+              {t:"The queue was too impatient", why:"The queue is a result, not the cause. The app kept you waiting at the one moment it mattered."} ],
+       ex:"An umbrella that opens perfectly at home but jams in the rain is not a good umbrella. Software is judged at the moment you need it." },
+     { type:"sort", q:"For the person using it: working, or letting them down?", buckets:["Working","Letting them down"],
+       items:[ {t:"A map app shows your route in two seconds", b:0, why:"Fast and correct. That is working."},
+               {t:"A train app shows yesterday's timetable", b:1, why:"It opened fine, but the information is wrong. You would miss your train."},
+               {t:"A video call freezes every ten seconds", b:1, why:"It is connected, but you cannot hold a conversation."},
+               {t:"An online shop takes your order and emails a confirmation", b:0, why:"You wanted to buy something and you did."} ],
+       ex:"A taxi that turns up but drives you to the wrong address did not do its job. Showing up is not enough." },
+     { type:"choice", q:"Which word best describes software you can count on?",
+       opts:[ {t:"Reliable", ok:1},
+              {t:"Colourful", why:"Looks are nice, but they do not tell you whether it will work tomorrow morning."},
+              {t:"Brand new", why:"New things break too. Often more."},
+              {t:"Expensive", why:"Price does not keep an app running. Plenty of costly software fails."} ],
+       ex:"Think of the friend who always turns up when they say they will. That friend is reliable. Software can be that friend, or the other one." },
+     { type:"choice", q:"True or false: the most reliable app is the one with the most features.",
+       opts:[ {t:"False", ok:1},
+              {t:"True", why:"Features and reliability are different things. More features often means more things that can break."} ],
+       ex:"A pocket knife with twenty tools and a blade that snaps is worse than a plain knife that cuts. People forgive a missing feature faster than a broken one." },
+     { type:"choice", q:"A food delivery company says its system is running perfectly. Meanwhile, you have waited two hours for a pizza that never came. Who is right about whether it works?",
+       opts:[ {t:"You are. It is judged from the customer's side", ok:1},
+              {t:"The company. They can see the computers", why:"The computers can all be running while the pizza never arrives. Running is not the same as doing the job."},
+              {t:"Nobody can know", why:"You can know. You ordered a pizza and did not get one. That is a clear result."} ],
+       ex:"A restaurant kitchen can be spotless and busy. If the food never reaches your table, dinner failed. The customer's experience is the score." }
+    ]},
+  { id:"l1-2", type:"lesson", code:"1.2", title:"Three ways to fail", sub:"6 questions. Errors, slowness, wrong answers.",
+    intro:{ h:"Three ways to let you down", p:"Software can fail you in three ways. It can say no (an error). It can make you wait too long. Or it can give you the wrong answer. All three count as failing, even when nothing looks broken." },
+    take:"Errors, slowness and wrong answers are all failures. What counts is what the user sees.",
+    qs:[
+     { type:"choice", q:"You try to book a cinema ticket. The site says: 'Something went wrong. Please try again later.' Which kind of failure is this?",
+       opts:[ {t:"It said no (an error)", ok:1},
+              {t:"It was too slow", why:"It answered quickly. The answer was just 'no'."},
+              {t:"It gave a wrong answer", why:"It did not give you an answer at all. It refused. A wrong answer would be a ticket for the wrong film."} ],
+       ex:"A shop with a 'closed' sign on the door at two in the afternoon. You know right away you will not be served." },
+     { type:"choice", q:"A web page takes 40 seconds to open. You give up and close it. For you, this was...",
+       opts:[ {t:"As bad as broken", ok:1},
+              {t:"Fine, because it would have opened in the end", why:"You had already left. A page nobody waits for helps nobody."},
+              {t:"Better than an error", why:"Arguably worse. An error tells you straight away. Slowness wastes your time first."} ],
+       ex:"A lift that takes twenty minutes to arrive is not out of order, but you will take the stairs. Too slow and broken feel the same." },
+     { type:"choice", q:"Your weather app opens instantly and shows no errors. It says 'sunny all day'. You look outside: heavy rain. Did the app work?",
+       opts:[ {t:"No. A wrong answer is a failure", ok:1},
+              {t:"Yes. It was fast", why:"Fast and wrong is still wrong. You left your coat at home."},
+              {t:"Yes. There was no error message", why:"The most dangerous failures are the silent ones. Nothing warned you that the answer was wrong."} ],
+       ex:"A clock that has stopped still shows a time, very confidently. It is just not the right time." },
+     { type:"sort", q:"Something happens behind the scenes at an online shop. Would a shopper notice?", buckets:NOTICE,
+       items:[ {t:"The 'Pay now' button does nothing", b:0, why:"The shopper cannot buy. They notice immediately."},
+               {t:"One computer breaks and a spare takes over within a second", b:1, why:"The shop kept working. That is good design, and nobody outside saw a thing."},
+               {t:"Search results take 30 seconds to appear", b:0, why:"Waiting half a minute for search results feels broken."},
+               {t:"A storage disk is half full", b:1, why:"Half full is normal. Nothing has changed for the shopper."} ],
+       ex:"In a theatre, a stagehand can trip backstage and the audience never knows. If an actor forgets their lines, everyone knows. Reliability work starts with what the audience sees." },
+     { type:"choice", q:"True or false: if all the company's computers are switched on and running, the customers must be happy.",
+       opts:[ {t:"False", ok:1},
+              {t:"True", why:"Computers can be running while the thing customers want still fails. Running is not the same as working."} ],
+       ex:"A shop can have every light on and staff behind the counter. If the front door is locked, nobody is buying anything." },
+     { type:"choice", q:"You run a small online shop. What is the best way to know it is working?",
+       opts:[ {t:"Check that people can actually buy things", ok:1},
+              {t:"Check that the computers are switched on", why:"That tells you the lights are on, not that the door is open."},
+              {t:"Wait for angry emails", why:"By then customers have already been let down, and most of them leave without writing."} ],
+       ex:"A baker does not look at the oven light to know the bread is good. They taste the bread." }
+    ]},
+  { id:"l1-3", type:"lesson", code:"1.3", title:"Good enough", sub:"6 questions. Reliability as a number.",
+    intro:{ h:"Nothing works every time", p:"Lifts get stuck. Trains run late. Apps fail now and then. So instead of asking 'does it work?', we count: out of 100 tries, how many worked? That number is how reliability is measured." },
+    take:"Reliability is a number: how many tries out of 100 worked. The goal is enough, not perfect.",
+    qs:[
+     { type:"choice", q:"This week the office coffee machine was used 100 times. It worked 98 times. How often did it work?",
+       opts:[ {t:"98 out of 100", ok:1},
+              {t:"2 out of 100", why:"That is how often it failed. It worked the other 98 times."},
+              {t:"100 out of 100", why:"It failed twice, so not every time."} ],
+       ex:"Like a striker who scores 98 of 100 penalties. You describe them by the ones that went in." },
+     { type:"choice", q:"Which sentence tells you most about how reliable an app is?",
+       opts:[ {t:"It works 99 times out of 100", ok:1},
+              {t:"It works pretty well", why:"'Pretty well' means something different to everyone. You cannot check it or improve on it."},
+              {t:"People seem to like it", why:"Liking an app and the app working are different things, and 'seem to' is a guess."} ],
+       ex:"'The trains are usually fine' starts an argument. '93 of 100 trains arrived on time' ends one. Numbers let people agree." },
+     { type:"order", q:"Not everything needs the same reliability. Put these in order, from 'must almost never fail' to 'can fail now and then'.",
+       items:["The emergency phone line","Paying by card in a shop","A photo filter app"],
+       why:"The more harm a failure does, the more reliability is worth paying for.",
+       ex:"A hospital has a backup generator. Your garden shed does not. Both choices are sensible." },
+     { type:"choice", q:"A team says: 'Our music app must never fail. Not once. Ever.' What is wrong with that goal?",
+       opts:[ {t:"Never failing is impossible to promise, and chasing it costs a fortune", ok:1},
+              {t:"Nothing. That is the right goal", why:"It sounds right, but nothing built by people works every single time. The closer you get to perfect, the more each small step costs."},
+              {t:"Music apps do not matter", why:"They matter to the people using them. The problem is the word 'never', not the app."} ],
+       ex:"A train company that is never late, not even once, would need spare trains, spare drivers and spare track everywhere. Tickets would cost several times as much." },
+     { type:"choice", q:"Your home wifi drops out about once in every 100 tries. An app improves from working 999 times in 1,000 to working 9,999 times in 10,000. Would you notice?",
+       opts:[ {t:"No. The wifi fails far more often than the app", ok:1},
+              {t:"Yes. It became ten times better", why:"On paper, yes. In your living room the wifi still drops once in 100 tries, and that is what you feel."},
+              {t:"Yes. Every improvement shows", why:"Only when the app is the weakest part. Here the wifi is."} ],
+       ex:"Polishing a car that is already clean does not get you to work faster when the road is full of holes. Past a certain point, more reliability cannot be felt." },
+     { type:"choice", q:"So what is a sensible goal for most software?",
+       opts:[ {t:"Reliable enough that users are happy, and no more", ok:1},
+              {t:"Perfect, whatever it costs", why:"The cost is real: money, and time not spent making the product better. Users cannot feel the last tiny step anyway."},
+              {t:"As cheap as possible. Reliability can wait", why:"Too far the other way. If people cannot count on it, they leave."} ],
+       ex:"You buy a good lock for your front door. You do not hire ten guards. Good enough for the risk is the smart choice." }
+    ]},
+  { id:"x-a", type:"exam", code:"A", title:"Checkpoint A", sub:"10 questions. Pass mark 80%. Earns the rank Observer.", pass:80,
+    intro:{ h:"Checkpoint A", p:"Ten questions on everything so far. No second tries this time, but you still get the explanation after each answer. You need 8 out of 10 to pass. Notice the pass mark is not 10 out of 10. Good enough is the point." },
+    qs:[
+     { from:"l1-2", type:"choice", q:"A parcel app says 'Delivered'. There is no parcel at your door. What kind of failure is this?",
+       opts:[ {t:"A wrong answer", ok:1},
+              {t:"Too slow", why:"The app answered right away. The answer was just not true."},
+              {t:"An error message", why:"There was no error message. It told you, confidently, something that was wrong."} ],
+       ex:"A sat nav that calmly says 'you have arrived' in the middle of a field." },
+     { from:"l1-1", type:"choice", q:"The team's screens are all green. At the same time, customers are phoning to say they cannot log in. What is true?",
+       opts:[ {t:"Something is broken. The customers' experience is what counts", ok:1},
+              {t:"Everything is fine. The screens say so", why:"The screens only show what somebody thought to measure. The customers are showing you what was missed."},
+              {t:"The customers are probably making mistakes", why:"One customer, maybe. Many at once means the problem is on your side."} ],
+       ex:"A pilot whose instruments say all is well, while passengers can see smoke from the window, should look out of the window." },
+     { from:"l1-3", type:"choice", q:"A chat app sent 1,000 messages. 995 arrived. How often did it work?",
+       opts:[ {t:"995 out of 1,000", ok:1},
+              {t:"5 out of 1,000", why:"That is how many got lost. The other 995 arrived."},
+              {t:"1,000 out of 1,000", why:"Five messages never arrived, so it was not every time."} ],
+       ex:"A postman who delivers 995 of 1,000 letters. Good work, with five people still waiting." },
+     { from:"l1-2", type:"sort", q:"A streaming service has a busy evening. Which of these would a viewer notice?", buckets:NOTICE,
+       items:[ {t:"The film stops every minute to load", b:0, why:"Constant pauses ruin the film."},
+               {t:"A backup machine takes over in one second", b:1, why:"The viewer saw nothing. The backup did its job."},
+               {t:"The 'Play' button shows an error", b:0, why:"They cannot watch at all."},
+               {t:"An engineer tidies up old files", b:1, why:"Housekeeping behind the scenes changes nothing on screen."} ],
+       ex:"Hotel guests notice a cold shower. They do not notice the plumber who fixed a spare pump at three in the morning." },
+     { from:"l1-2", type:"choice", q:"True or false: for the person waiting, 'far too slow' can be just as bad as 'broken'.",
+       opts:[ {t:"True", ok:1},
+              {t:"False", why:"If you give up before it finishes, the result for you is the same. You did not get what you came for."} ],
+       ex:"A waiter who brings your meal after two hours has not really served you dinner." },
+     { from:"l1-3", type:"choice", q:"Which goal is the most sensible for a taxi app?",
+       opts:[ {t:"At least 999 of every 1,000 ride requests go through", ok:1},
+              {t:"No ride request ever fails", why:"'Ever' cannot be promised. One dropped phone signal breaks it, and trying to prevent every such case costs a fortune."},
+              {t:"Rides work most of the time", why:"'Most' could mean 51 in 100 or 99 in 100. Nobody can check it or be held to it."} ],
+       ex:"A good goal is like a speed limit: a clear number everyone can see and measure." },
+     { from:"l1-3", type:"order", q:"Put these in order, from 'must almost never fail' to 'can fail now and then'.",
+       items:["A hospital heart monitor","A supermarket's online checkout","A game's list of top scores"],
+       why:"The more harm a failure does, the more reliability is worth paying for.",
+       ex:"You insure a house for more than a bicycle. Protection should match what is at stake." },
+     { from:"l1-1", type:"choice", q:"An app added 50 new features this year. It also crashes every morning at nine. Is it reliable?",
+       opts:[ {t:"No. It fails when people need it", ok:1},
+              {t:"Yes. It keeps improving", why:"New features do not make up for failing every morning. Nobody can use a feature in an app that is down."},
+              {t:"Yes, apart from the mornings", why:"Mornings are when people use it. Reliable only when nobody is looking is not reliable."} ],
+       ex:"A bakery with fifty kinds of bread that is closed at breakfast time." },
+     { from:"l1-2", type:"choice", q:"You are in charge of a video call app. Which single thing tells you best whether it is working?",
+       opts:[ {t:"How many calls connect and stay clear", ok:1},
+              {t:"How many computers are switched on", why:"Computers can be on while calls fail. That measures your equipment, not your users' experience."},
+              {t:"How many people work on the team", why:"Team size says nothing about whether tonight's call to grandma will connect."} ],
+       ex:"A restaurant counts happy tables, not how many ovens it owns." },
+     { from:"l1-3", type:"choice", q:"A shop took 200 card payments today. 4 failed. A manager says: 'Four failures is terrible. We need zero.' What is the best reply?",
+       opts:[ {t:"196 of 200 worked. Let us agree what number is good enough, then aim for that", ok:1},
+              {t:"Agreed. Zero failures from now on", why:"Zero forever cannot be promised. Cards get declined and phones lose signal. A goal nobody can reach helps nobody."},
+              {t:"Four is nothing. Ignore it", why:"Maybe, maybe not. Without an agreed target nobody knows whether 196 of 200 is good or bad. That is the missing piece."} ],
+       ex:"Before arguing about whether the train service is good, agree what good means: say, 95 of 100 on time. Then the number settles it." }
+    ]}
+ ]},
+ { n:2, title:"Set a target", blurb:"The two terms engineers use every day: the number you measure and the number you aim for.", nodes:[
+  { id:"l2-1", type:"lesson", code:"2.1", title:"Measure, then aim", sub:"6 questions. Your first real SRE terms.",
+    intro:{ h:"Two numbers", p:"You know reliability is a number. Now for the two terms engineers use every day. The number you measure is called an indicator. The number you aim for is called an objective. Measure first, then aim." },
+    take:"SLI: the number you measure. SLO: the number you aim for. Compare them to know where you stand.",
+    qs:[
+     { type:"choice", q:"A train company measures how many trains arrive on time. Last month it was 93 out of 100. What is the 93?",
+       opts:[ {t:"A measurement of what actually happened", ok:1},
+              {t:"A promise to passengers", why:"Nobody promised 93. It is simply what happened last month."},
+              {t:"A goal for next month", why:"A goal looks forward. This number looks back at what already happened."} ],
+       ex:"Stepping on the scales gives you a measurement. Deciding what you want to weigh is a different thing." },
+     { type:"choice", q:"The company then decides: 'We want at least 95 of every 100 trains on time.' What is the 95?",
+       opts:[ {t:"A target to aim for", ok:1},
+              {t:"A measurement", why:"Nothing has been measured yet. This is what they want, not what they got."},
+              {t:"The number of trains they own", why:"It is a share of trains arriving on time, not a count of trains."} ],
+       ex:"The scales show 82 kilos: a measurement. 'I want to be 78': a target. You need both to know how you are doing." },
+     { type:"choice", q:"Engineers call the measurement an SLI, short for service level indicator. Which of these is an SLI?",
+       opts:[ {t:"97 of 100 logins worked last week", ok:1},
+              {t:"At least 99 of 100 logins should work", why:"'Should' gives it away. That is a target, not a measurement."},
+              {t:"We added a new login button", why:"That is a change to the product. An indicator is a number that shows how well it works."} ],
+       ex:"The speedometer in a car is an indicator. It tells you what is happening." },
+     { type:"choice", q:"The target has a name too: an SLO, short for service level objective. Which of these is an SLO?",
+       opts:[ {t:"99 of every 100 payments should go through", ok:1},
+              {t:"98 of 100 payments went through yesterday", why:"That is what happened. It is a measurement, so an indicator."},
+              {t:"Payments are very important to us", why:"True, but there is no number in it. An objective needs a number you can check."} ],
+       ex:"The speed limit sign is the objective. The speedometer is the indicator. You compare one with the other." },
+     { type:"sort", q:"Indicator or objective?", buckets:["Indicator (measured)","Objective (aimed for)"],
+       items:[ {t:"9 of 10 pages opened within two seconds yesterday", b:0, why:"It describes yesterday. That is a measurement."},
+               {t:"95 of 100 pages should open within two seconds", b:1, why:"'Should' makes it a target."},
+               {t:"999 of 1,000 messages arrived last month", b:0, why:"It already happened, so it is a measurement."},
+               {t:"At least 99 of 100 video calls should connect", b:1, why:"It says what the team aims for."} ],
+       ex:"A school report shows the marks you got. The pass mark is what you needed. Indicator, objective." },
+     { type:"choice", q:"The objective is 99 of 100 payments. This week, 97 of 100 went through. What should the team do?",
+       opts:[ {t:"Focus on making payments more reliable. They are below target", ok:1},
+              {t:"Nothing. 97 is a high number", why:"High compared with what? The agreed target is 99, and 97 is under it."},
+              {t:"Lower the objective to 97 so it matches", why:"Moving the goalposts hides the problem. The target was chosen for the users, and they are getting less."} ],
+       ex:"If the pass mark is 80 and you score 70, you revise. You do not ask the teacher to change the pass mark." }
+    ]}
+ ]}
+];
+var LATER = [
+ {k:"2.2 to 2.4", t:"Why not 100%, the error budget, spend it or save it"},
+ {k:"Checkpoint B", t:"Exam on targets and budgets", exam:1},
+ {k:"Unit 3", t:"Watching the system: signals, symptoms and causes"},
+ {k:"Unit 4", t:"Alarms worth waking up for"},
+ {k:"Checkpoint C", t:"Exam on watching and alerting", exam:1},
+ {k:"Unit 5", t:"Boring work, and how to get rid of it"},
+ {k:"Unit 6", t:"On call without burning out"},
+ {k:"Unit 7", t:"When it breaks: running an incident"},
+ {k:"Unit 8", t:"Learning without blame"},
+ {k:"Checkpoint D", t:"Exam on incidents", exam:1},
+ {k:"Unit 9", t:"Changing things safely"},
+ {k:"Unit 10", t:"Built to bend, not break"},
+ {k:"Unit 11", t:"Teams and trust"},
+ {k:"Unit 12", t:"The hard parts"},
+ {k:"Unit 13", t:"AI at the controls"},
+ {k:"Final exam", t:"Everything, mixed", exam:1}
+];
+/* Ranks are earned by passing checkpoints, so each title says what the player can now do. */
+var RANKS = [
+ { name:"Newcomer" },
+ { exam:"x-a", cp:"Checkpoint A", name:"Observer", can:"You can say what reliable means from the user's side." },
+ { exam:"x-b", cp:"Checkpoint B", name:"Planner", can:"You can set a target and read an error budget." },
+ { exam:"x-c", cp:"Checkpoint C", name:"Watchkeeper", can:"You know what to monitor and what deserves an alarm." },
+ { exam:"x-d", cp:"Checkpoint D", name:"Responder", can:"You can run an incident and learn from it." },
+ { exam:"x-e", cp:"Checkpoint E", name:"Practitioner", can:"You understand safe change, resilient design and team setup." },
+ { exam:"x-final", cp:"the final exam", name:"Reliability Engineer", can:"You see the whole picture." }
+];
+
+var SEQ = [];
+COURSE.forEach(function(u){ u.nodes.forEach(function(n){ n.unit = u; SEQ.push(n); }); });
+var MAX_STARS = SEQ.filter(function(n){ return n.type === "lesson"; }).length * 3;
+
+/* ------------------------------------------------------------------ state */
+var LS_KEY = "reliability-line-v1";
+function blank(){ return { v:1, xp:0, streak:{n:0,last:""}, done:{}, exams:{}, updatedAt:0, resetAt:0 }; }
+function clean(o){
+  var s = blank(); if(!o || typeof o !== "object") return s;
+  s.xp = +o.xp || 0; s.updatedAt = +o.updatedAt || 0; s.resetAt = +o.resetAt || 0;
+  if(o.streak && typeof o.streak === "object"){ s.streak = { n:+o.streak.n || 0, last:String(o.streak.last || "") }; }
+  var k;
+  if(o.done && typeof o.done === "object") for(k in o.done){ var d = o.done[k] || {}; s.done[k] = { stars:+d.stars || 0, best:+d.best || 0, plays:+d.plays || 0 }; }
+  if(o.exams && typeof o.exams === "object") for(k in o.exams){ var e = o.exams[k] || {}; s.exams[k] = { best:+e.best || 0, passed:!!e.passed, tries:+e.tries || 0 }; }
+  return s;
+}
+function merge(a, b){
+  if(a.resetAt !== b.resetAt) return clean(a.resetAt > b.resetAt ? a : b);
+  var m = blank(), k;
+  m.resetAt = a.resetAt; m.xp = Math.max(a.xp, b.xp); m.updatedAt = Math.max(a.updatedAt, b.updatedAt);
+  m.streak = (a.streak.last >= b.streak.last) ? { n:a.streak.n, last:a.streak.last } : { n:b.streak.n, last:b.streak.last };
+  if(a.streak.last === b.streak.last) m.streak.n = Math.max(a.streak.n, b.streak.n);
+  [a, b].forEach(function(s){
+    for(k in s.done){ var d = s.done[k], c = m.done[k] || {stars:0,best:0,plays:0};
+      m.done[k] = { stars:Math.max(c.stars, d.stars), best:Math.max(c.best, d.best), plays:Math.max(c.plays, d.plays) }; }
+    for(k in s.exams){ var e = s.exams[k], x = m.exams[k] || {best:0,passed:false,tries:0};
+      m.exams[k] = { best:Math.max(x.best, e.best), passed:x.passed || e.passed, tries:Math.max(x.tries, e.tries) }; }
+  });
+  return m;
+}
+var S = blank(), localOk = true;
+try { var raw = localStorage.getItem(LS_KEY); if(raw) S = clean(JSON.parse(raw)); } catch(e){ localOk = false; }
+function saveLocal(){ try { localStorage.setItem(LS_KEY, JSON.stringify(S)); localOk = true; } catch(e){ localOk = false; } }
+
+var cloud = { ref:null, ok:false, writing:false, dirty:false, failed:false };
+function withTimeout(p, ms){ return Promise.race([p, new Promise(function(_, rej){ setTimeout(function(){ rej({code:"timeout"}); }, ms); })]); }
+function pushCloud(){
+  if(!cloud.ref) return;
+  if(cloud.writing){ cloud.dirty = true; return; }
+  cloud.writing = true; paintSave();
+  (function loop(){
+    cloud.dirty = false;
+    cloud.ref.set(JSON.parse(JSON.stringify(S))).then(function(){
+      if(cloud.dirty) return loop();
+      cloud.ok = true; cloud.failed = false; cloud.writing = false; paintSave();
+    }, function(){ cloud.ok = false; cloud.failed = true; cloud.writing = false; paintSave(); });
+  })();
+}
+function save(){ S.updatedAt = Date.now(); saveLocal(); pushCloud(); paintSave(); }
+function initCloud(){
+  if(!window.claude || typeof window.claude.use !== "function") return;
+  Promise.all([window.claude.use("db"), window.claude.use("user")]).then(function(r){
+    var db = r[0], user = r[1]; if(!db || !user) return;
+    return user.id().then(function(uid){
+      if(!uid) return;
+      var ref = db.doc("data/users/" + uid + "/progress");
+      return withTimeout(ref.get(), 10000).then(function(snap){
+        cloud.ref = ref;
+        if(snap && snap.exists){
+          var remote = clean(snap.data()), before = JSON.stringify(S), merged = merge(S, remote);
+          S = merged; saveLocal();
+          if(JSON.stringify(merged) !== before && !sess) renderHome();
+          if(JSON.stringify(merged) !== JSON.stringify(remote)) pushCloud(); else cloud.ok = true;
+        } else if(S.updatedAt > 0){ pushCloud(); } else { cloud.ok = true; }
+        paintSave();
+      });
+    });
+  }).catch(function(){ paintSave(); });
+}
+
+/* ---------------------------------------------------------------- helpers */
+var root = document.getElementById("root");
+function h(tag, attrs){
+  var e = document.createElement(tag), k, i;
+  for(k in (attrs || {})){ var v = attrs[k];
+    if(v == null || v === false) continue;
+    if(k === "class") e.className = v; else if(k === "text") e.textContent = v;
+    else if(k.slice(0,2) === "on") e.addEventListener(k.slice(2), v);
+    else if(k === "disabled") e.disabled = true; else e.setAttribute(k, v === true ? "" : v); }
+  for(i = 2; i < arguments.length; i++){ var c = arguments[i];
+    if(Array.isArray(c)) c.forEach(function(x){ if(x != null && x !== false) e.append(x); });
+    else if(c != null && c !== false) e.append(c); }
+  return e;
+}
+var ICONS = {
+  bolt:'<path d="M13 2 4 14h6l-1 8 9-12h-6z"/>',
+  flame:'<path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-2 1-4 2-5 0 2 1 3 2 3 0-3 0-6 2-10z"/>',
+  star:'<path d="M12 2l3 7 7 .6-5.3 4.8L18.4 22 12 18.2 5.6 22l1.7-7.6L2 9.6 9 9z"/>',
+  lock:'<path d="M7 10V8a5 5 0 0 1 10 0v2h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2zm2 0h6V8a3 3 0 0 0-6 0z"/>',
+  check:'<path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>',
+  cross:'<path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>',
+  cup:'<path d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.4A5 5 0 0 1 13 14.9V18h3v3H8v-3h3v-3.1A5 5 0 0 1 8.4 12H8a4 4 0 0 1-4-4V5h3zm0 4H6v1a2 2 0 0 0 1 1.7zm10 0v2.7A2 2 0 0 0 18 8V7z"/>'
+};
+function icon(name){
+  var s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("class", "ic"); s.setAttribute("aria-hidden", "true"); s.setAttribute("fill", "currentColor");
+  s.innerHTML = ICONS[name]; return s;
+}
+function shuffle(a){ a = a.slice(); for(var i = a.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function pick(a){ return a[Math.floor(Math.random() * a.length)]; }
+function day(d){ return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+function isDone(n){ return n.type === "exam" ? !!(S.exams[n.id] && S.exams[n.id].passed) : !!S.done[n.id]; }
+function isOpen(n){ var i = SEQ.indexOf(n); return i === 0 || isDone(SEQ[i - 1]); }
+function nextNode(){ for(var i = 0; i < SEQ.length; i++) if(!isDone(SEQ[i])) return SEQ[i]; return null; }
+function rankInfo(){
+  var i = 0; while(RANKS[i + 1] && S.exams[RANKS[i + 1].exam] && S.exams[RANKS[i + 1].exam].passed) i++;
+  var cur = RANKS[i], nx = RANKS[i + 1] || null, frac = nx ? 0 : 1, built = false, from = 0, to = -1;
+  if(nx){
+    SEQ.forEach(function(n, k){ if(n.id === nx.exam) to = k; if(cur.exam && n.id === cur.exam) from = k + 1; });
+    if(to >= 0){ built = true; var done = 0; for(var k = from; k <= to; k++) if(isDone(SEQ[k])) done++; frac = done / (to - from + 1); }
+  }
+  return { name:cur.name, next:nx, frac:frac, built:built };
+}
+function liveStreak(){ var t = new Date(), y = new Date(t.getTime() - 864e5);
+  return (S.streak.last === day(t) || S.streak.last === day(y)) ? S.streak.n : 0; }
+function bumpStreak(){ var t = new Date(), y = new Date(t.getTime() - 864e5), td = day(t);
+  if(S.streak.last === td) return; S.streak.n = (S.streak.last === day(y)) ? S.streak.n + 1 : 1; S.streak.last = td; }
+function starRow(n, cls){ var w = h("span", {class:cls || "stars", role:"img", "aria-label":n + " of 3 stars"});
+  for(var i = 0; i < 3; i++) w.append(h("span", {"aria-hidden":"true", text: i < n ? "★" : "☆"})); return w; }
+var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function confetti(){
+  if(reduceMotion) return;
+  var box = h("div", {class:"confetti", "aria-hidden":"true"}), cols = ["var(--sun)","var(--blue)","var(--good-solid)","var(--grape)","var(--teal)"];
+  for(var i = 0; i < 48; i++) box.append(h("i", {style:"left:" + (Math.random() * 100) + "%;background:" + cols[i % cols.length] +
+    ";animation-duration:" + (1.8 + Math.random() * 1.8) + "s;animation-delay:" + (Math.random() * 0.6) + "s"}));
+  document.body.append(box); setTimeout(function(){ box.remove(); }, 4500);
+}
+var PREF_KEY = "reliability-line-prefs", prefs = { big:false };
+try { prefs.big = !!(JSON.parse(localStorage.getItem(PREF_KEY) || "{}").big); } catch(e){}
+function applyPrefs(){ document.documentElement.classList.toggle("big", prefs.big); }
+
+/* ----------------------------------------------------------- score chips */
+var sess = null, confirmReset = false;
+function chips(){
+  var stars = 0, k; for(k in S.done) stars += S.done[k].stars;
+  var live = sess && sess.phase !== "result";
+  var pts = S.xp + (live ? sess.xp : 0), st = liveStreak();
+  var gain = sess && sess.phase === "feedback" && sess.last ? sess.last.gain : 0;
+  var out = [ h("span", {class:"chip c-pts" + (gain ? " pop" : "")}, icon("bolt"), h("b", {text:String(pts)}), h("span", {class:"lbl", text:"points"}),
+    gain ? h("span", {class:"fly", "aria-hidden":"true", text:"+" + gain}) : null) ];
+  if(live && sess.combo >= 2) out.push(h("span", {class:"chip c-combo"}, h("b", {text:String(sess.combo)}), h("span", {class:"lbl", text:"in a row"})));
+  out.push(h("span", {class:"chip c-streak"}, icon("flame"), h("b", {text:String(st)}), h("span", {class:"lbl", text:"day streak"})));
+  out.push(h("span", {class:"chip c-stars"}, icon("star"), h("b", {text:stars + "/" + MAX_STARS}), h("span", {class:"lbl", text:"stars"})));
+  return h("div", {class:"chips", role:"group", "aria-label":"Your score"}, out);
+}
+function rankBar(){
+  var r = rankInfo(), pct = Math.round(r.frac * 100);
+  var tip = !r.next ? "Top rank reached" : (r.built ? "Next: " + r.next.name + ". Pass " + r.next.cp + "." : "Next: " + r.next.name + ", in the full version.");
+  return h("div", {class:"rank"}, h("span", {text:"Rank: " + r.name}),
+    h("span", {class:"meter", role:"img", "aria-label":pct + "% of the way to the next rank"}, h("i", {style:"width:" + pct + "%"})),
+    h("span", {text:tip}));
+}
+
+/* ------------------------------------------------------------------- home */
+function paintSave(){
+  var el = document.getElementById("save"); if(!el) return;
+  var cls = "dot", txt;
+  if(cloud.writing){ cls += " warn"; txt = "Saving..."; }
+  else if(cloud.ok){ cls += " ok"; txt = "Progress saved to your account"; }
+  else if(localOk){ cls += cloud.failed ? " warn" : " ok"; txt = cloud.failed ? "Saved on this device. Account sync will retry." : "Progress saved on this device"; }
+  else { cls += " bad"; txt = "Progress cannot be saved in this window"; }
+  el.replaceChildren(h("span", {class:cls}), h("span", {text:txt}));
+}
+function renderHome(){
+  sess = null;
+  var nx = nextNode(), items = [], zig = [0, 1, 2, 1], zi = 0;
+  COURSE.forEach(function(u){
+    items.push(h("li", null, h("div", {class:"banner u" + u.n}, h("div", {class:"k", text:"Unit " + u.n}), h("h2", {text:u.title}), h("p", {text:u.blurb}))));
+    u.nodes.forEach(function(n, ni){
+      var done = isDone(n), op = isOpen(n), cur = op && !done, ex = n.type === "exam";
+      var cls = "stop" + (ex ? " exam" : "") + (done ? " done" : (cur ? " now" : " locked"));
+      var badge = h("span", {class:"badge"}, done ? icon("check") : (!op ? icon("lock") : (ex ? icon("cup") : n.code)));
+      var right = h("span", {class:"stop-r"});
+      if(!op) right.append("Locked");
+      else {
+        if(!ex && S.done[n.id]) right.append(starRow(S.done[n.id].stars));
+        if(ex && S.exams[n.id]) right.append(h("span", {text:"Best " + S.exams[n.id].best + "%"}));
+        if(cur) right.append(h("span", {class:"go", text: ex ? (S.exams[n.id] ? "Retake" : "Take exam") : "Start"}));
+        else right.append(h("span", {text: ex ? "Tap to retake" : "Tap to practise"}));
+      }
+      var body = [badge, h("span", null, h("span", {class:"stop-t", text:n.title}), h("span", {class:"stop-s", text:n.sub})), right];
+      var card = op ? h("button", {class:cls, type:"button", onclick:function(){ start(n); }}, body) : h("div", {class:cls}, body);
+      items.push(h("li", {class:"stop-li", style:"--sx:calc(var(--step) * " + zig[zi++ % 4] + ")"},
+        ni > 0 ? h("span", {class:"conn" + (op ? " on" : "")}) : null, card));
+    });
+  });
+
+  var hero;
+  if(!nx) hero = [h("strong", {text:"You have completed the preview."}), h("p", {text:"More stops are on the way. Until then, practise any stop to collect all the stars."})];
+  else if(!S.updatedAt) hero = [h("strong", {text:"Learn site reliability engineering, from zero"}),
+    h("p", {text:"How do the apps you rely on stay up and running? Short stops, plain language, a few minutes each. No experience needed."}),
+    h("button", {class:"btn btn-primary btn-big", type:"button", text:"Start learning", onclick:function(){ start(nx); }})];
+  else hero = [h("strong", {text:"Welcome back."}), h("p", {text:"Next stop: " + nx.title + "."}),
+    h("button", {class:"btn btn-primary btn-big", type:"button", text:"Continue", onclick:function(){ start(nx); }})];
+
+  var reset = confirmReset
+    ? h("div", {class:"confirm"}, h("span", {text:"Erase all your progress?"}),
+        h("button", {class:"btn btn-small", type:"button", text:"Yes, erase", onclick:function(){
+          var r = blank(); r.resetAt = Date.now(); S = r; confirmReset = false; save(); renderHome(); }}),
+        h("button", {class:"btn btn-small", type:"button", text:"No, keep it", onclick:function(){ confirmReset = false; renderHome(); }}))
+    : null;
+
+  root.replaceChildren(
+    h("header", {class:"hud"},
+      h("div", {class:"hud-row"}, h("h1", {class:"logo"}, "Nines", h("span", {class:"tag", text:"Preview"})), chips()),
+      rankBar()),
+    h("section", {class:"hero"}, h("div", {class:"bubble"}, hero)),
+    h("ol", {class:"path"}, items),
+    h("section", {class:"later"}, h("h2", {text:"More stops are being built"}),
+      h("ul", null, LATER.map(function(l){ return h("li", null, icon(l.exam ? "cup" : "lock"), h("span", {text:l.k + ": " + l.t})); }))),
+    h("footer", {class:"foot"}, h("span", {class:"save", id:"save"}),
+      h("span", {class:"foot-r"},
+        h("button", {class:"linkish", type:"button", "aria-pressed":String(prefs.big), text: prefs.big ? "Normal text size" : "Larger text",
+          onclick:function(){ prefs.big = !prefs.big; applyPrefs(); try { localStorage.setItem(PREF_KEY, JSON.stringify(prefs)); } catch(e){} renderHome(); }}),
+        confirmReset ? null : h("button", {class:"linkish", type:"button", text:"Reset progress", onclick:function(){ confirmReset = true; renderHome(); }}))),
+    reset);
+  paintSave();
+}
+
+/* ----------------------------------------------------------------- player */
+var CHEER = ["Correct.", "Spot on.", "Exactly right.", "That is it."];
+var NUDGE = ["Not quite.", "Not this time.", "Close, but no."];
+function prep(q){
+  var p = { q:q, type:q.type };
+  if(q.type === "choice"){ p.sel = null;
+    p.opts = q.opts.length > 2 ? shuffle(q.opts) : q.opts.slice().sort(function(a, b){ return a.t === "True" ? -1 : (b.t === "True" ? 1 : 0); }); }
+  if(q.type === "sort"){ p.items = shuffle(q.items); p.sel = p.items.map(function(){ return null; }); }
+  if(q.type === "order"){ var pool; do { pool = shuffle(q.items); } while(pool.join("|") === q.items.join("|")); p.pool = pool; p.sel = []; }
+  return p;
+}
+function start(node){
+  var ex = node.type === "exam";
+  sess = { node:node, exam:ex, full: ex ? !(S.exams[node.id] && S.exams[node.id].passed) : !S.done[node.id],
+    queue: node.qs.map(function(_, i){ return i; }), total:node.qs.length, resolved:0, mistakes:0, missed:{}, results:[],
+    xp:0, combo:0, phase:"intro", cur:null, p:null, last:null, quit:false, fresh:false };
+  renderPlay();
+  window.scrollTo(0, 0);
+}
+function ready(){ var p = sess.p; if(!p) return false;
+  if(p.type === "choice") return p.sel != null;
+  if(p.type === "sort") return p.sel.every(function(x){ return x != null; });
+  return p.sel.length === p.q.items.length; }
+function advance(){
+  if(!sess.queue.length){ sess.phase = "result"; finish(); }
+  else { sess.cur = sess.queue.shift(); sess.p = prep(sess.node.qs[sess.cur]); sess.phase = "question"; sess.fresh = true; }
+  renderPlay();
+  window.scrollTo(0, 0);
+}
+function check(){
+  if(sess.phase !== "question" || !ready()) return;
+  var p = sess.p, q = p.q, ok, gain = 0;
+  if(p.type === "choice") ok = !!p.opts[p.sel].ok;
+  else if(p.type === "sort") ok = p.items.every(function(it, i){ return it.b === p.sel[i]; });
+  else ok = p.sel.join("|") === q.items.join("|");
+  sess.combo = ok ? sess.combo + 1 : 0;
+  if(sess.exam){
+    sess.results.push({ q:q, ok:ok }); sess.resolved++;
+    if(ok) gain = sess.full ? 15 : 3;
+  } else if(ok){
+    sess.resolved++; gain = sess.full ? (sess.missed[sess.cur] ? 5 : 10) : 2;
+  } else { sess.mistakes++; sess.missed[sess.cur] = true; sess.queue.push(sess.cur); }
+  var bonus = (ok && sess.full && sess.combo >= 3) ? 2 : 0;
+  gain += bonus; sess.xp += gain;
+  sess.last = { ok:ok, gain:gain, bonus:bonus, msg:pick(ok ? CHEER : NUDGE) }; sess.phase = "feedback";
+  renderPlay();
+}
+function finish(){
+  var n = sess.node, r = sess;
+  if(r.exam){
+    var right = r.results.filter(function(x){ return x.ok; }).length;
+    r.pct = Math.round(right / r.total * 100); r.right = right; r.passed = r.pct >= n.pass;
+    var prev = S.exams[n.id] || { best:0, passed:false, tries:0 };
+    r.bonus = (r.passed && !prev.passed) ? 50 : 0;
+    r.newRank = r.bonus ? RANKS.filter(function(x){ return x.exam === n.id; })[0] : null;
+    S.exams[n.id] = { best:Math.max(prev.best, r.pct), passed:prev.passed || r.passed, tries:prev.tries + 1 };
+  } else {
+    var missed = Object.keys(r.missed).length;
+    r.first = r.total - missed; r.stars = missed === 0 ? 3 : (missed <= 2 ? 2 : 1);
+    r.bonus = (missed === 0 && r.full) ? 20 : 0;
+    var pd = S.done[n.id] || { stars:0, best:0, plays:0 };
+    S.done[n.id] = { stars:Math.max(pd.stars, r.stars), best:Math.max(pd.best, Math.round(r.first / r.total * 100)), plays:pd.plays + 1 };
+  }
+  r.unitDone = n.unit.nodes[n.unit.nodes.length - 1] === n && (r.exam ? r.passed : true);
+  if(r.unitDone) confetti();
+  r.xp += r.bonus; S.xp += r.xp; bumpStreak(); save();
+}
+
+function viewQuestion(locked){
+  var p = sess.p, q = p.q, box = h("div", {class:"opts"});
+  if(p.type === "choice"){
+    box.setAttribute("role", "radiogroup"); box.setAttribute("aria-label", "Answers");
+    p.opts.forEach(function(o, i){
+      var cls = "opt", key = "ABCD".charAt(i), mark = null;
+      if(locked){ if(o.ok){ cls += " is-right"; key = icon("check"); mark = "Right answer: "; }
+                  else if(i === p.sel){ cls += " is-wrong"; key = icon("cross"); mark = "Your answer, not right: "; } }
+      box.append(h("button", {class:cls, type:"button", role:"radio", "aria-checked": String(i === p.sel), disabled:locked,
+        onclick:function(){ p.sel = i; renderPlay(); var b = document.querySelectorAll(".opt")[i]; if(b) b.focus(); }},
+        h("span", {class:"key", "aria-hidden":"true"}, key), mark ? h("span", {class:"sr", text:mark}) : null, h("span", {text:o.t})));
+    });
+    return [box];
+  }
+  if(p.type === "sort"){
+    p.items.forEach(function(it, i){
+      var good = it.b === p.sel[i], cls = "sortrow"; if(locked) cls += good ? " is-right" : " is-wrong";
+      box.append(h("div", {class:cls, role:"group", "aria-label":it.t},
+        h("span", {class:"mark"}, locked ? icon(good ? "check" : "cross") : null, locked ? h("span", {class:"sr", text: good ? "Right: " : "Not right: "}) : null, h("span", {text:it.t})),
+        h("div", {class:"pick"}, q.buckets.map(function(b, bi){
+          return h("button", {type:"button", "aria-pressed": String(p.sel[i] === bi), disabled:locked, text:b,
+            onclick:function(){ p.sel[i] = bi; renderPlay(); }}); }))));
+    });
+    return [h("p", {class:"hint", text:"Pick one for each line."}), box];
+  }
+  var slots = h("ol", {class:"slots"}), pool = h("div", {class:"pool"});
+  q.items.forEach(function(_, i){
+    var v = p.sel[i], cls = v ? "filled" : "";
+    if(locked) cls = (v === q.items[i]) ? "is-right" : "is-wrong";
+    slots.append(h("li", {class:cls}, v ? h("button", {type:"button", disabled:locked, text:v, "aria-label": locked ? v : "Take back: " + v,
+      onclick:function(){ p.sel.splice(i, 1); renderPlay(); }}) : h("span", {class:"hint", text:"Tap an item below"})));
+  });
+  p.pool.forEach(function(t){ if(p.sel.indexOf(t) < 0) pool.append(h("button", {type:"button", disabled:locked, text:t,
+    onclick:function(){ p.sel.push(t); renderPlay(); }})); });
+  return [h("p", {class:"hint", text:"Tap the items in order. Tap a placed item to take it back."}), slots, locked ? null : pool];
+}
+function viewFeedback(){
+  var p = sess.p, q = p.q, L = sess.last, ok = L.ok;
+  var kids = [h("div", {class:"fb-head"}, h("h3", null, icon(ok ? "check" : "cross"), L.msg))];
+  if(!ok){
+    if(p.type === "choice"){
+      var right = p.opts.filter(function(o){ return o.ok; })[0];
+      kids.push(h("p", null, h("span", {class:"lab", text:"Why not that one?"}), p.opts[p.sel].why));
+      kids.push(h("p", null, h("span", {class:"lab", text:"The answer"}), right.t));
+    } else if(p.type === "sort"){
+      var ul = h("ul");
+      p.items.forEach(function(it, i){ if(it.b !== p.sel[i]) ul.append(h("li", {text:"\"" + it.t + "\" goes under \"" + q.buckets[it.b] + "\". " + it.why})); });
+      kids.push(h("div", null, h("span", {class:"lab", text:"What to change"}), ul));
+    } else {
+      kids.push(h("p", null, h("span", {class:"lab", text:"The right order"}), q.items.join(", then ") + "."));
+      kids.push(h("p", null, h("span", {class:"lab", text:"Why?"}), q.why));
+    }
+  }
+  kids.push(h("p", null, h("span", {class:"lab", text:"Picture it"}), q.ex));
+  if(ok && L.gain) kids.push(h("span", {class:"note", text:"+" + L.gain + " points" + (L.bonus ? " (includes +" + L.bonus + " for " + sess.combo + " in a row)" : "")}));
+  if(!ok && !sess.exam) kids.push(h("span", {class:"note", text:"You will get another go at this one before the stop ends."}));
+  return h("div", {class:"fb " + (ok ? "ok" : "no"), role:"status", "aria-live":"polite"}, kids);
+}
+function viewResult(){
+  var r = sess, n = r.node, c = [];
+  if(r.unitDone) c.push(h("p", {class:"unitdone", text:"Unit " + n.unit.n + " complete: " + n.unit.title}));
+  function tally(a){ return h("dl", {class:"tally"}, a.map(function(x){ return h("div", null, h("dt", {text:x[0]}), h("dd", {text:x[1]})); })); }
+  if(r.exam){
+    c.push(h("div", {class:"bigscore", text:r.right + " / " + r.total}));
+    c.push(h("h2", null, h("span", {class: r.passed ? "pass" : "fail", text: r.passed ? "Passed." : "Not yet."}),
+      " " + r.pct + "% (you need " + n.pass + "%)"));
+    if(!r.passed) c.push(h("p", {text:"Review the stops listed below, then try again."}));
+    if(r.newRank) c.push(h("p", {class:"take"}, h("b", {text:"New rank: " + r.newRank.name}), r.newRank.can));
+    c.push(tally([["Points earned", "+" + r.xp], ["Pass bonus", r.bonus ? "+" + r.bonus : "0"], ["Best score", S.exams[n.id].best + "%"]]));
+    var rev = h("ul", {class:"review"}), weak = {};
+    r.results.forEach(function(x){ if(!x.ok) weak[x.q.from] = 1;
+      rev.append(h("li", {class: x.ok ? "y" : "n"}, icon(x.ok ? "check" : "cross"), h("span", {class:"sr", text: x.ok ? "Right: " : "Wrong: "}),
+        h("span", {style:"color:var(--ink)", text:x.q.q}))); });
+    c.push(rev);
+    var names = SEQ.filter(function(s){ return weak[s.id]; }).map(function(s){ return s.title; });
+    if(names.length) c.push(h("p", {class:"take"}, h("b", {text: r.passed ? "Worth another look" : "Practise these first"}), names.join(", ") + "."));
+  } else {
+    c.push(starRow(r.stars, "bigstars"));
+    c.push(h("h2", {text: r.stars === 3 ? "Perfect run." : (r.stars === 2 ? "Well done." : "Stop complete.")}));
+    if(r.stars < 3) c.push(h("p", {text:"The repeats are how it sticks. Practise again any time to earn all three stars."}));
+    c.push(tally([["Points earned", "+" + r.xp], ["Right first time", r.first + " of " + r.total], ["Perfect bonus", r.bonus ? "+" + r.bonus : "0"]]));
+    c.push(h("p", {class:"take"}, h("b", {text:"Remember"}), n.take));
+  }
+  return c;
+}
+function renderPlay(){
+  var s = sess, n = s.node, card, actions = [];
+  var where = s.exam ? n.title : "Stop " + n.code + ": " + n.title;
+  if(s.phase === "intro"){
+    card = h("section", {class:"card intro"},
+      h("div", null, h("p", {class:"where", text:where}), h("h2", {text:n.intro.h}), h("p", {text:n.intro.p})));
+    actions.push(h("button", {class:"btn btn-primary btn-big", type:"button", id:"main", text:"Begin", onclick:advance}));
+  } else if(s.phase === "result"){
+    card = h("section", {class:"card result"}, h("p", {class:"where", text:where}), viewResult());
+    var nx = nextNode();
+    if(s.exam && !s.passed) actions.push(h("button", {class:"btn", type:"button", text:"Try again", onclick:function(){ start(n); }}));
+    actions.push(h("button", {class:"btn" + (nx && nx !== n && !(s.exam && !s.passed) ? "" : " btn-primary"), type:"button", text:"Back to the path", onclick:renderHome,
+      id: (nx && nx !== n && !(s.exam && !s.passed)) ? null : "main"}));
+    if(nx && nx !== n && !(s.exam && !s.passed)) actions.push(h("button", {class:"btn btn-primary btn-big", type:"button", id:"main", text:"Next stop", onclick:function(){ start(nx); }}));
+  } else {
+    var locked = s.phase === "feedback";
+    card = h("section", {class:"card"}, h("p", {class:"where", text:where}), h("h2", {class:"q", id:"q", tabindex:"-1", text:s.p.q.q}), viewQuestion(locked), locked ? viewFeedback() : null);
+    actions.push(locked
+      ? h("button", {class:"btn btn-primary btn-big", type:"button", id:"main", text: s.queue.length ? "Continue" : "Finish", onclick:advance})
+      : h("button", {class:"btn btn-primary btn-big", type:"button", id:"main", text:"Check", disabled:!ready(), onclick:check}));
+  }
+  var pct = s.phase === "intro" ? 0 : Math.round(s.resolved / s.total * 100);
+  var hud = h("header", {class:"hud"},
+    h("div", {class:"hud-row"},
+      s.phase === "result" ? null : h("button", {class:"xbtn", type:"button", "aria-label":"Leave this stop", onclick:function(){ s.quit = !s.quit; renderPlay(); }}, icon("cross")),
+      h("div", {class:"bar", role:"progressbar", "aria-label":"Progress in this stop", "aria-valuemin":"0", "aria-valuemax":"100", "aria-valuenow":String(pct)}, h("i", {style:"width:" + pct + "%"})),
+      h("span", {class:"count", text:s.resolved + " of " + s.total})),
+    chips());
+  var quit = (s.quit && s.phase !== "result") ? h("div", {class:"confirm"}, h("span", {text:"Leave this stop? Your answers here will not be kept."}),
+    h("button", {class:"btn btn-small", type:"button", text:"Leave", onclick:renderHome}),
+    h("button", {class:"btn btn-small btn-primary", type:"button", text:"Keep playing", onclick:function(){ s.quit = false; renderPlay(); }})) : null;
+  root.replaceChildren(hud, quit, card, h("div", {class:"p-actions"}, actions));
+  if(s.phase === "question"){ if(s.fresh){ s.fresh = false; var qh = document.getElementById("q"); if(qh) qh.focus({preventScroll:true}); } }
+  else { var m = document.getElementById("main"); if(m) m.focus({preventScroll: s.phase !== "feedback"}); }
+}
+document.addEventListener("keydown", function(e){
+  if(!sess || e.metaKey || e.ctrlKey || e.altKey) return;
+  if(sess.phase === "question" && sess.p.type === "choice"){
+    var i = "1234".indexOf(e.key); if(i < 0) i = "abcd".indexOf(e.key.toLowerCase());
+    if(i >= 0 && e.key.length === 1 && i < sess.p.opts.length){ sess.p.sel = i; renderPlay(); e.preventDefault(); return; }
+  }
+  var a = document.activeElement;
+  if(e.key === "Enter" && sess.phase === "question" && ready() && !(a && a.id === "main")
+     && !(a && a.tagName === "BUTTON" && sess.p.type !== "choice")){ check(); e.preventDefault(); }
+});
+
+applyPrefs();
+renderHome();
+initCloud();
+</script>
+</body>
+</html>
