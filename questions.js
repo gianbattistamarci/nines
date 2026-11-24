@@ -10,6 +10,20 @@
      ex     an everyday picture of the same idea. Shown under "Picture it".
    Exam questions also have from: the id of the lesson they test.
 
+   READ THE THEORY
+   Every lesson has read: one or two places in the books where its idea is explained. Each has
+     s  the section heading, written exactly as on the page. The link jumps to that heading.
+     c  where it is, for example "SRE book, chapter 6".
+     u  the address of the chapter.
+     a  (optional) the page's own anchor for the section. When present, the link uses it instead of the heading.
+   A question can have its own read, which replaces the lesson's for that question. Exam questions show the
+   read of the lesson they test.
+
+   SAVED PROGRESS
+   A player's progress is saved under the lesson and exam ids (l1-1, x-a and so on), not under the version
+   of the game. Never rename or remove an id: a renamed id loses the progress saved under it. New questions,
+   new versions of a question and new lessons are all safe.
+
    HOW RANDOMISING WORKS
    Each entry in qs is one idea the lesson teaches. An entry is a list of questions in [ ... ] that all teach
    the same idea (a single question without a list also works). Every idea in the course has two versions. On every play the game picks one question from each
@@ -31,6 +45,7 @@ var COURSE = [
   { id:"l1-1", type:"lesson", code:"1.1", title:"It just works", sub:"6 questions. No experience needed.",
     intro:{ h:"Start here", p:"You never think about your banking app when it works. You only notice it on the day it lets you down. Reliability means software does what you expect, at the moment you need it. That is the whole subject. Let us warm up." },
     take:"Reliable means it does what people expect, when they need it, judged from their side.",
+    read:[ {s:"What Do You and Your Users Care About?", c:"SRE book, chapter 4", u:"https://sre.google/sre-book/service-level-objectives/"} ],
     qs:[
      [ { type:"choice", q:"You open your banking app. Your balance appears within a second. Is the app doing its job?",
          opts:[ {t:"Yes", ok:1},
@@ -117,6 +132,7 @@ var COURSE = [
   { id:"l1-2", type:"lesson", code:"1.2", title:"Three ways to fail", sub:"6 questions. Errors, slowness, wrong answers.",
     intro:{ h:"Three ways to let you down", p:"Software can fail you in three ways. It can say no (an error). It can make you wait too long. Or it can give you the wrong answer. All three count as failing, even when nothing looks broken." },
     take:"Errors, slowness and wrong answers are all failures. What counts is what the user sees.",
+    read:[ {s:"Indicators", c:"SRE book, chapter 4", u:"https://sre.google/sre-book/service-level-objectives/"} ],
     qs:[
      [ { type:"choice", q:"You try to book a cinema ticket. The site says: 'Something went wrong. Please try again later.' Which kind of failure is this?",
          opts:[ {t:"An error", ok:1},
@@ -205,6 +221,7 @@ var COURSE = [
   { id:"l1-3", type:"lesson", code:"1.3", title:"Good enough", sub:"6 questions. Reliability as a number.",
     intro:{ h:"Nothing works every time", p:"Lifts get stuck. Trains run late. Apps fail now and then. So instead of asking 'does it work?', we count: out of 100 tries, how many worked? That number is how reliability is measured." },
     take:"Reliability is a number: how many tries out of 100 worked. The goal is enough, not perfect.",
+    read:[ {s:"Managing Risk", c:"SRE book, chapter 3", u:"https://sre.google/sre-book/embracing-risk/"} ],
     qs:[
      [ { type:"choice", q:"This week, people used the office coffee machine 100 times. It failed 2 times. How often did it work?",
          opts:[ {t:"98 out of 100", ok:1},
@@ -419,6 +436,7 @@ var COURSE = [
   { id:"l2-1", type:"lesson", code:"2.1", title:"Measure, then aim", sub:"6 questions. Your first real SRE terms.",
     intro:{ h:"Two numbers", p:"You know reliability is a number. Now for the two terms engineers use every day. The number you measure is called an indicator. The number you aim for is called an objective. Measure first, then aim." },
     take:"SLI: the number you measure. SLO: the number you aim for. Compare them to know where you stand.",
+    read:[ {s:"Service Level Terminology", c:"SRE book, chapter 4", u:"https://sre.google/sre-book/service-level-objectives/"} ],
     qs:[
      [ { type:"choice", q:"A train company counts how many trains arrive on time. Last month: 93 out of 100. What kind of number is 93?",
          opts:[ {t:"A measurement of last month", ok:1},
@@ -505,6 +523,7 @@ var COURSE = [
   { id:"l2-2", type:"lesson", code:"2.2", title:"Why not 100%", sub:"6 questions. Percentages, nines and the price of perfect.",
     intro:{ h:"The last step costs the most", p:"So far we wrote '99 out of 100'. Engineers write that as 99%, and from here on so do we. You might think the best objective is 100%. It is not. This stop shows why." },
     take:"100% is the wrong target. Each extra nine costs far more, and users stop feeling the difference.",
+    read:[ {s:"Pursuing Maximum Change Velocity", c:"SRE book, chapter 1", u:"https://sre.google/sre-book/introduction/"}, {s:"Measuring Service Risk", c:"SRE book, chapter 3", u:"https://sre.google/sre-book/embracing-risk/"} ],
     qs:[
      [ { type:"choice", q:"An app works 99 out of 100 times. How do engineers write that?",
          opts:[ {t:"99%", ok:1},
@@ -585,6 +604,7 @@ var COURSE = [
   { id:"l2-3", type:"lesson", code:"2.3", title:"The error budget", sub:"6 questions. How much failure is allowed.",
     intro:{ h:"Room to fail", p:"If the objective is 99%, then 1% may fail. That 1% is not a shame. It is an allowance, agreed in advance. Engineers call it the error budget." },
     take:"Error budget: 100% minus the objective. It is the amount of failure you are allowed to have.",
+    read:[ {s:"Forming Your Error Budget", c:"SRE book, chapter 3", u:"https://sre.google/sre-book/embracing-risk/"} ],
     qs:[
      [ { type:"choice", q:"The objective is 99%. What share of tries is allowed to fail?",
          opts:[ {t:"1%", ok:1},
@@ -669,6 +689,7 @@ var COURSE = [
   { id:"l2-4", type:"lesson", code:"2.4", title:"Spend it or save it", sub:"6 questions. What to do with the budget.",
     intro:{ h:"A budget is for spending", p:"New features bring risk: every change can break something. The error budget tells a team how much risk it can still take. Budget left: go ahead and change things. Budget gone: slow down and repair." },
     take:"Budget left: release new things. Budget gone: stop and make it more reliable. The number decides, not the loudest voice.",
+    read:[ {s:"Decision Making Using SLOs and Error Budgets", c:"SRE workbook, chapter 2", u:"https://sre.google/workbook/implementing-slos/"}, {s:"The Global Chubby Planned Outage", c:"SRE book, chapter 4", u:"https://sre.google/sre-book/service-level-objectives/"} ],
     qs:[
      [ { type:"choice", q:"It is halfway through the month. The team has used very little of its error budget. What does that allow?",
          opts:[ {t:"Releasing new features with some risk", ok:1},
@@ -727,13 +748,14 @@ var COURSE = [
      [ { type:"choice", q:"A team finishes every month with its whole error budget unused. What does that suggest?",
          opts:[ {t:"They could release faster", ok:1},
                 {t:"They are doing everything right", why:"Maybe. But unused budget also means risks not taken: features that users had to wait for."},
-                {t:"The objective should be 100%", why:"100% leaves no budget at all, so no change could ever be made. Unused budget is room to move faster."} ],
+                {t:"Raise the objective to match", why:"Only if users need more. A higher objective raises the promise, not the reliability: the service works the same the day after. If users are happy, the unused budget is room to release faster."} ],
          point:"A budget that is never touched means the team is more careful than its users need.",
          ex:"If you always arrive at the airport five hours early, you never miss a flight. You also lose a lot of time." },
        { type:"choice", q:"A service has stayed far above its objective for a year. Its error budget is never used. What is a sensible conclusion?",
          opts:[ {t:"The team can take more risk", ok:1},
                 {t:"Nothing should ever change", why:"Unused budget means users waited longer for improvements than was needed."},
-                {t:"The budget should be removed", why:"The budget still decides how much risk is acceptable. Right now it shows there is room to move faster."} ],
+                {t:"The budget should be removed", why:"The budget still decides how much risk is acceptable. Right now it shows there is room to move faster."},
+                {t:"Raise the objective instead", why:"Only if users need more. A higher objective shrinks the budget and raises the promise, but the service itself is not one bit more reliable. If users are happy, use the room to move faster."} ],
          point:"A budget that is never touched means the team is more careful than its users need.",
          ex:"A driver who never goes above 30 on the motorway is safe, and very late." } ],
 
@@ -887,8 +909,9 @@ var COURSE = [
 
   /* ------------------------------------------------------------ 3.1 Four things to watch */
   { id:"l3-1", type:"lesson", code:"3.1", title:"Four things to watch", sub:"6 questions. The four signals.",
-    intro:{ h:"You cannot fix what you cannot see", p:"To keep a service reliable, you have to watch it. Watching a running system is called monitoring. There is far too much to look at, so engineers start with four signals: how slow, how busy, how many errors, and how full." },
-    take:"The four signals: how slow (latency), how busy (traffic), how many errors, how full (saturation).",
+    intro:{ h:"You cannot fix what you cannot see", p:"To keep a service reliable, you have to watch it. Watching a running system is called monitoring. There is far too much to look at, so engineers start with four signals: how slow, how busy, how many errors, and how full. The SRE books call them the four golden signals." },
+    take:"The four golden signals: how slow (latency), how busy (traffic), how many errors, how full (saturation).",
+    read:[ {s:"The Four Golden Signals", c:"SRE book, chapter 6", u:"https://sre.google/sre-book/monitoring-distributed-systems/", a:"xref_monitoring_golden-signals"} ],
     qs:[
      [ { type:"choice", q:"Watching a running system to see how it is doing has a name. What is it called?",
          opts:[ {t:"Monitoring", ok:1},
@@ -957,17 +980,17 @@ var COURSE = [
          point:"Slow, busy, errors, full: with these four you see most problems coming.",
          ex:"A shop owner watches the queue, the number of customers, the returns and the stock room." } ],
 
-     [ { type:"choice", q:"A new service gets a screen with only four numbers on it. Which four make the best start?",
-         opts:[ {t:"Waiting time, visitors, errors, how full", ok:1},
+     [ { type:"choice", q:"A new service gets a monitoring screen with room for four signals only. Which four signals make the best start?",
+         opts:[ {t:"How slow, how busy, errors, how full", ok:1},
                 {t:"Servers, team size, costs, software age", why:"Those describe the organisation. They do not show how the service is doing for users right now."},
                 {t:"Lines of code, features, releases, bugs", why:"Those describe the software project. They do not show what users experience right now."} ],
-         point:"Start with the four signals. Add more only when you need them.",
+         point:"Start with the four golden signals: slow, busy, errors, full. Add more only when you need them.",
          ex:"A new driver learns to read speed and fuel first, not the oil pressure." },
-       { type:"choice", q:"You may put four numbers on the wall screen of a new service. Which choice is best?",
-         opts:[ {t:"Speed, visitors, errors, free space", ok:1},
+       { type:"choice", q:"The team's wall screen shows four signals about a new service. Which four signals should they be?",
+         opts:[ {t:"Slow, busy, errors, full", ok:1},
                 {t:"Releases, features, tickets, bugs", why:"Those describe the team's work. They do not show how the service is doing for users right now."},
                 {t:"Costs, licences, contracts, invoices", why:"Those describe the money. They do not show how the service is doing for users right now."} ],
-         point:"Start with the four signals. Add more only when you need them.",
+         point:"Start with the four golden signals: slow, busy, errors, full. Add more only when you need them.",
          ex:"A pilot's main instruments: speed, height, direction and fuel." } ]
     ]},
 
@@ -975,6 +998,7 @@ var COURSE = [
   { id:"l3-2", type:"lesson", code:"3.2", title:"Symptoms and causes", sub:"6 questions. What users feel, and why.",
     intro:{ h:"What hurts, and why", p:"A symptom is what the user feels: the page is slow, the payment fails. A cause is the reason behind it: a full disk, a broken cable. Good monitoring shows the symptom first, then helps you find the cause." },
     take:"Symptom: what users feel. Cause: why it happens. Watch symptoms first, then look for causes.",
+    read:[ {s:"Symptoms Versus Causes", c:"SRE book, chapter 6", u:"https://sre.google/sre-book/monitoring-distributed-systems/"} ],
     qs:[
      [ { type:"choice", q:"Customers cannot log in. The reason: the database, where all accounts are stored, is overloaded. Which part is the symptom?",
          opts:[ {t:"Customers cannot log in", ok:1},
@@ -1062,8 +1086,9 @@ var COURSE = [
 
   /* ------------------------------------------------------------ 4.1 Alert, ticket or log */
   { id:"l4-1", type:"lesson", code:"4.1", title:"Alert, ticket or log", sub:"6 questions. Three ways to report a problem.",
-    intro:{ h:"Now, soon, or never", p:"Monitoring can tell people about a problem in three ways. An alert interrupts someone now. A ticket asks someone to look during working hours. A log is only written down, in case it is needed later. The skill is choosing the right one." },
-    take:"Alert: a person must act now. Ticket: a person must act soon. Log: nobody needs to act.",
+    intro:{ h:"Now, soon, or never", p:"Monitoring can tell people about a problem in three ways. An alert interrupts someone now. A ticket is the early warning: it tells someone now, and they act during working hours, before anything breaks. A log is only written down, in case it is needed later. The skill is choosing the right one." },
+    take:"Alert: a person must act now. Ticket: a person is warned now and acts soon. Log: nobody needs to act.",
+    read:[ {s:"Tying These Principles Together", c:"SRE book, chapter 6", u:"https://sre.google/sre-book/monitoring-distributed-systems/"} ],
     qs:[
      [ { type:"choice", q:"Payments on a shop website have failed for all customers for five minutes. How should the team hear about it?",
          opts:[ {t:"An alert, right now", ok:1},
@@ -1089,21 +1114,27 @@ var COURSE = [
                 {t:"An alert in the middle of the night", why:"Nothing breaks tonight. Waking someone for a problem two months away wears people out."},
                 {t:"No message at all", why:"In two months it becomes an outage. Someone has to act, only not this minute."} ],
          point:"Needs action, but not now: that is a ticket.",
-         ex:"A reminder that your passport expires next year." } ],
+         ex:"A reminder that your passport expires next year." },
+       { type:"choice", q:"At the current pace, the disk that stores customer uploads will be full in two hours. Then nobody can upload. How should the team hear about it?",
+         opts:[ {t:"An alert, right now", ok:1},
+                {t:"A ticket to handle this week", why:"In two hours customers cannot upload. A ticket would be read too late."},
+                {t:"No message at all", why:"In two hours it becomes an outage, and nobody would see it coming."} ],
+         point:"How soon it breaks decides. Weeks away: a ticket. Hours away: an alert.",
+         ex:"Fuel for 1,000 km means you plan a stop. Fuel for 10 km means you stop at the next station." } ],
 
-     [ { type:"sort", q:"How should each of these be reported?", buckets:["Alert now","Ticket","Log only"],
+     [ { type:"sort", q:"How should each of these be reported?", buckets:["Alert now","Ticket: act soon","Log only"],
          items:[ {t:"The whole website is down", b:0, why:"Every user is affected, right now. Someone must act immediately."},
                  {t:"A security certificate must be renewed within 20 days", b:1, why:"It needs action, but there is time to plan it."},
                  {t:"Last night's backup finished without problems", b:2, why:"Nothing needs to be done. It is good to have it on record."},
                  {t:"One spare machine failed and the others took over", b:1, why:"Users notice nothing, so nobody needs to wake up. The machine does need replacing soon."} ],
-         point:"Urgency decides: now, soon, or only on record.",
+         point:"Urgency decides: alert for now, ticket for soon, log for the record.",
          ex:"A hospital has an emergency room, appointments, and notes in the file." },
-       { type:"sort", q:"How should each of these be reported?", buckets:["Alert now","Ticket","Log only"],
+       { type:"sort", q:"How should each of these be reported?", buckets:["Alert now","Ticket: act soon","Log only"],
          items:[ {t:"No customer can check out", b:0, why:"Customers are affected right now. Someone must act at once."},
                  {t:"A password must be changed within 30 days", b:1, why:"It needs action, but there is time to plan it."},
                  {t:"The nightly clean-up finished normally", b:2, why:"Nothing needs to be done. It is good to have it on record."},
-                 {t:"A backup disk is 85% full and growing slowly", b:1, why:"Nothing breaks today. It does need attention before it is full."} ],
-         point:"Urgency decides: now, soon, or only on record.",
+                 {t:"A backup disk is 85% full and growing slowly", b:1, why:"The ticket is the early warning: the team is told now, while there is time to act. Nobody needs to wake up, because nothing breaks today."} ],
+         point:"Urgency decides: alert for now, ticket for soon, log for the record.",
          ex:"A doctor's day: emergencies, appointments and notes." } ],
 
      [ { type:"choice", q:"An alert wakes an engineer at night. She looks, finds nothing she can do, and goes back to sleep. What is wrong with this alert?",
@@ -1139,7 +1170,7 @@ var COURSE = [
        { type:"choice", q:"It is 3 am. Which of these should wake the on-call engineer?",
          opts:[ {t:"Nobody can log in", ok:1},
                 {t:"A weekly report failed", why:"It can be made again in the morning. Nobody needs it at 3 am."},
-                {t:"A spare disk is half full", why:"Nothing is wrong and nothing needs doing."} ],
+                {t:"The disk for old invoices is half full", why:"At its current pace it has years of room left. Nothing needs doing tonight."} ],
          point:"Urgent, real, and felt by users: those three together deserve an alert.",
          ex:"You wake the neighbours for a fire, not for a parcel." } ]
     ]},
@@ -1148,6 +1179,7 @@ var COURSE = [
   { id:"l4-2", type:"lesson", code:"4.2", title:"Too many alarms", sub:"6 questions. When people stop listening.",
     intro:{ h:"The alarm nobody hears", p:"An alarm that rings all day stops being an alarm. People learn to ignore it, and then they miss the one that matters. Engineers call this alert fatigue. The cure is fewer and better alerts." },
     take:"Few alerts, each one real, urgent and tied to what users feel. Repair or remove the noisy ones.",
+    read:[ {s:"Bigtable SRE: A Tale of Over-Alerting", c:"SRE book, chapter 6", u:"https://sre.google/sre-book/monitoring-distributed-systems/"}, {s:"Ways to Alert on Significant Events", c:"SRE workbook, chapter 5", u:"https://sre.google/workbook/alerting-on-slos/"} ],
     qs:[
      [ { type:"choice", q:"A team gets 300 alerts a day. Almost all are harmless. What is the biggest danger?",
          opts:[ {t:"The one real alert gets ignored", ok:1},
@@ -1205,7 +1237,7 @@ var COURSE = [
          items:[ {t:"Checkout errors are ten times higher than normal", b:0, why:"Customers are being let down right now."},
                  {t:"A nightly job took two minutes longer than usual", b:1, why:"Nobody is affected and nothing needs to be done."},
                  {t:"No customer has been able to log in for five minutes", b:0, why:"That is urgent and felt by every user."},
-                 {t:"A spare disk is 60% full", b:1, why:"Nothing is wrong. There is nothing for a person to do."} ],
+                 {t:"The disk for old invoices is 60% full, with years of room left", b:1, why:"Nothing is wrong and nobody needs to wake up. If it starts filling fast, a ticket is the right warning."} ],
          point:"A good alert is urgent, real and felt by users. The rest is noise.",
          ex:"A smoke detector that also beeps for every piece of toast teaches you to remove the battery." },
        { type:"sort", q:"Is it a good alert or noise?", buckets:["Good alert","Noise"],
@@ -1325,19 +1357,19 @@ var COURSE = [
          point:"Alerts are for now. Tickets are for soon.",
          ex:"You do not phone someone at night about a meeting next week." } ],
 
-     [ { from:"l4-1", type:"sort", q:"How should each of these be reported?", buckets:["Alert now","Ticket","Log only"],
+     [ { from:"l4-1", type:"sort", q:"How should each of these be reported?", buckets:["Alert now","Ticket: act soon","Log only"],
          items:[ {t:"All video calls are failing", b:0, why:"Every user is affected right now."},
                  {t:"A machine must be replaced within a month", b:1, why:"It needs action, but there is time to plan it."},
                  {t:"The daily check passed", b:2, why:"Nothing needs to be done."},
                  {t:"Half of all payments fail", b:0, why:"Customers are being let down right now."} ],
-         point:"Urgency decides: now, soon, or only on record.",
+         point:"Urgency decides: alert for now, ticket for soon, log for the record.",
          ex:"Ambulance, appointment, or a note in the file." },
-       { from:"l4-1", type:"sort", q:"How should each of these be reported?", buckets:["Alert now","Ticket","Log only"],
+       { from:"l4-1", type:"sort", q:"How should each of these be reported?", buckets:["Alert now","Ticket: act soon","Log only"],
          items:[ {t:"Nobody can log in", b:0, why:"Every user is affected right now."},
                  {t:"A licence must be renewed this quarter", b:1, why:"It needs action, but there is time to plan it."},
                  {t:"A routine check found no problems", b:2, why:"Nothing needs to be done."},
                  {t:"Orders are failing for most customers", b:0, why:"Customers are being let down right now."} ],
-         point:"Urgency decides: now, soon, or only on record.",
+         point:"Urgency decides: alert for now, ticket for soon, log for the record.",
          ex:"Fire brigade, repair appointment, or a line in the logbook." } ],
 
      [ { from:"l4-2", type:"choice", q:"What is alert fatigue?",
@@ -1374,6 +1406,7 @@ var COURSE = [
   { id:"l5-1", type:"lesson", code:"5.1", title:"Spot the toil", sub:"6 questions. The work that never ends.",
     intro:{ h:"The same task, again", p:"Some work has to be done by hand, again and again, and leaves nothing better behind. Restarting the same program every morning. Copying the same numbers every week. Engineers call this toil. It grows as the service grows, until there is time for nothing else." },
     take:"Toil: manual, repeated work that a machine could do and that leaves nothing better behind.",
+    read:[ {s:"Toil Defined", c:"SRE book, chapter 5", u:"https://sre.google/sre-book/eliminating-toil/"} ],
     qs:[
      [ { type:"choice", q:"Every morning an engineer restarts the same program by hand, because it gets stuck overnight. What do engineers call this kind of work?",
          opts:[ {t:"Toil", ok:1},
@@ -1458,6 +1491,7 @@ var COURSE = [
   { id:"l5-2", type:"lesson", code:"5.2", title:"Automate, with care", sub:"6 questions. Let the machine do it, safely.",
     intro:{ h:"Do it once, properly", p:"The cure for toil is to let a machine do the task, or to remove the need for it. Engineers call this automation. It saves time, and a machine does not get tired or skip a step. But a machine also repeats a mistake faster than any person could." },
     take:"Remove the task if you can. Automate it if you cannot. And put limits on what automation may do.",
+    read:[ {s:"The Value of Automation", c:"SRE book, chapter 7", u:"https://sre.google/sre-book/automation-at-google/"}, {s:"Automation: Enabling Failure at Scale", c:"SRE book, chapter 7", u:"https://sre.google/sre-book/automation-at-google/"} ],
     qs:[
      [ { type:"choice", q:"A task takes 5 minutes and is done by hand 20 times a day. What is the best long-term answer?",
          opts:[ {t:"Let a program do it", ok:1},
@@ -1539,6 +1573,7 @@ var COURSE = [
   { id:"l6-1", type:"lesson", code:"6.1", title:"Being on call", sub:"6 questions. The person who answers.",
     intro:{ h:"Someone has to answer", p:"Services run day and night, so someone must be reachable when an alert comes. That person is on call. Being on call does not mean knowing everything. It means reacting quickly, following the plan, and asking for help in time." },
     take:"On call: reachable, quick to react, and never afraid to ask for help.",
+    read:[ {s:"Life of an On-Call Engineer", c:"SRE book, chapter 11", u:"https://sre.google/sre-book/being-on-call/"} ],
     qs:[
      [ { type:"choice", q:"A team takes turns being the person who must respond when an alert comes, also at night. What is this called?",
          opts:[ {t:"Being on call", ok:1},
@@ -1617,6 +1652,7 @@ var COURSE = [
   { id:"l6-2", type:"lesson", code:"6.2", title:"A healthy rota", sub:"6 questions. Keeping it bearable.",
     intro:{ h:"People are not machines", p:"A tired person makes poor decisions, and poor decisions cause outages. So on-call work must be shared fairly, limited, and followed by rest. A healthy on-call schedule is not a gift to the team. It is part of reliability." },
     take:"Share the load, limit the interruptions, rest after a hard night. Tired people make mistakes.",
+    read:[ {s:"Balanced On-Call", c:"SRE book, chapter 11", u:"https://sre.google/sre-book/being-on-call/"} ],
     qs:[
      [ { type:"choice", q:"One engineer has been on call alone, every night, for three months. What is the main risk?",
          opts:[ {t:"Tiredness leads to mistakes", ok:1},
@@ -1706,6 +1742,7 @@ var COURSE = [
   { id:"l7-1", type:"lesson", code:"7.1", title:"First, stop the harm", sub:"6 questions. The first minutes.",
     intro:{ h:"Stop the harm first", p:"When a service fails for its users, engineers call it an incident. The first goal is not to understand it. The first goal is to make it stop hurting users. Understanding comes later, when everyone is calm." },
     take:"In an incident: first stop the harm, then find the cause.",
+    read:[ {s:"Triage", c:"SRE book, chapter 12", u:"https://sre.google/sre-book/effective-troubleshooting/"} ],
     qs:[
      [ { type:"choice", q:"A service is failing for many users right now. What do engineers call this?",
          opts:[ {t:"An incident", ok:1},
@@ -1784,6 +1821,7 @@ var COURSE = [
   { id:"l7-2", type:"lesson", code:"7.2", title:"Who does what", sub:"6 questions. Clear roles under pressure.",
     intro:{ h:"One person leads", p:"A serious incident needs more than one person, and that needs organisation. One person leads and decides: the incident commander. Others do the technical work. Someone keeps everyone else informed. Clear roles prevent chaos." },
     take:"Incident roles: one leads, some repair, one informs. Everyone knows who is who.",
+    read:[ {s:"Recursive Separation of Responsibilities", c:"SRE book, chapter 14", u:"https://sre.google/sre-book/managing-incidents/"} ],
     qs:[
      [ { type:"choice", q:"During a large incident, one person coordinates: this person decides what is tried and who does what. What is this role called?",
          opts:[ {t:"Incident commander", ok:1},
@@ -1873,6 +1911,7 @@ var COURSE = [
   { id:"l8-1", type:"lesson", code:"8.1", title:"The review afterwards", sub:"6 questions. Writing down what happened.",
     intro:{ h:"Never waste an incident", p:"An incident costs money and trust. The only good thing about it is what it can teach. So after an incident, the team writes down what happened, why, and what will change. Engineers call this a postmortem." },
     take:"Postmortem: a written record of what happened, why, and what will change so that it does not return.",
+    read:[ {s:"Postmortem Philosophy", c:"SRE book, chapter 15", u:"https://sre.google/sre-book/postmortem-culture/"} ],
     qs:[
      [ { type:"choice", q:"After an incident, the team writes down what happened, what the effect was, why it happened, and what will change. What is this document called?",
          opts:[ {t:"A postmortem", ok:1},
@@ -1957,6 +1996,7 @@ var COURSE = [
   { id:"l8-2", type:"lesson", code:"8.2", title:"No blame", sub:"6 questions. Fix the system, not the person.",
     intro:{ h:"'Who' is the wrong question", p:"When something breaks, people look for someone to blame. It feels fair, and it makes things worse. People who fear punishment hide mistakes, and hidden mistakes cannot be fixed. Good teams ask how the system let it happen. This is called a blameless culture." },
     take:"Blameless: ask how the system allowed the mistake, not who made it. People who feel safe report problems early.",
+    read:[ {s:"Avoid Blame and Keep It Constructive", c:"SRE book, chapter 15", u:"https://sre.google/sre-book/postmortem-culture/"} ],
     qs:[
      [ { type:"choice", q:"An engineer typed a wrong command and caused an outage. Which question is the most useful in the review?",
          opts:[ {t:"Why was that mistake so easy to make?", ok:1},
@@ -2175,6 +2215,7 @@ var COURSE = [
   { id:"l9-1", type:"lesson", code:"9.1", title:"It worked yesterday", sub:"6 questions. Why changes break things.",
     intro:{ h:"It worked yesterday", p:"A system that nobody touches rarely breaks. Most incidents start with a change: a new version, a new setting. But users want improvements, so not changing is no answer. The art is to change safely." },
     take:"Most incidents follow a change. Small, tested changes are the safe way to keep moving.",
+    read:[ {s:"Change Management", c:"SRE book, chapter 1", u:"https://sre.google/sre-book/introduction/"} ],
     qs:[
      [ { type:"choice", q:"A service that ran well for months suddenly fails. What is the first question worth asking?",
          opts:[ {t:"What changed recently?", ok:1},
@@ -2259,6 +2300,7 @@ var COURSE = [
   { id:"l9-2", type:"lesson", code:"9.2", title:"Roll out slowly", sub:"6 questions. A little first, then the rest.",
     intro:{ h:"Try it on a few", p:"Even a tested change can fail with real users. So engineers do not give a new version to everyone at once. They give it to a small group first and watch. If all is well, the group grows. If not, they go back. This is a gradual rollout." },
     take:"Release to a few users first, watch, then widen. Always be able to go back quickly.",
+    read:[ {s:"What Is Canarying?", c:"SRE workbook, chapter 16", u:"https://sre.google/workbook/canarying-releases/"}, {s:"Gradual and Staged Rollouts", c:"SRE book, chapter 27", u:"https://sre.google/sre-book/reliable-product-launches/"} ],
     qs:[
      [ { type:"choice", q:"A new version is ready. Which way of releasing it is the safest?",
          opts:[ {t:"To 1% of users first, then more", ok:1},
@@ -2342,6 +2384,7 @@ var COURSE = [
   { id:"l10-1", type:"lesson", code:"10.1", title:"Always a spare", sub:"6 questions. Spares and backups.",
     intro:{ h:"Everything breaks one day", p:"Disks fail. Cables get cut. Whole buildings lose power. A reliable service does not hope this will not happen. It is built so that when one part fails, another takes over. And it keeps copies of its data that have been tested." },
     take:"Have a spare for every important part, in a different place. A backup only counts if restoring it has been tested.",
+    read:[ {s:"Demand Forecasting and Capacity Planning", c:"SRE book, chapter 1", u:"https://sre.google/sre-book/introduction/"}, {s:"Delivering a Recovery System, Rather Than a Backup System", c:"SRE book, chapter 26", u:"https://sre.google/sre-book/data-integrity/"} ],
     qs:[
      [ { type:"choice", q:"A website runs on one single server. That server breaks. What happens?",
          opts:[ {t:"The whole website is down", ok:1},
@@ -2424,6 +2467,7 @@ var COURSE = [
   { id:"l10-2", type:"lesson", code:"10.2", title:"Too much at once", sub:"6 questions. Overload and how to survive it.",
     intro:{ h:"Too much of a good thing", p:"Sometimes a service fails because it is too popular. Too many requests arrive, everything slows down, and then it stops for everyone. A well-built service protects itself: it serves as many users as it can, and tells the rest to come back later." },
     take:"Under overload: serve what you can, refuse the rest quickly, and switch off extras. Retrying blindly makes it worse.",
+    read:[ {s:"Handling Overload", c:"SRE book, chapter 21", u:"https://sre.google/sre-book/handling-overload/"}, {s:"Load Shedding and Graceful Degradation", c:"SRE book, chapter 22", u:"https://sre.google/sre-book/addressing-cascading-failures/"} ],
     qs:[
      [ { type:"choice", q:"A ticket site can handle 1,000 visitors at once. 5,000 arrive. Which behaviour is best?",
          opts:[ {t:"Serve 1,000 and ask the rest to wait", ok:1},
@@ -2513,6 +2557,7 @@ var COURSE = [
   { id:"l11-1", type:"lesson", code:"11.1", title:"Builders and runners", sub:"6 questions. Two goals, one agreement.",
     intro:{ h:"Faster or safer?", p:"Developers are asked to deliver new features fast. Operators are asked to keep things stable. Those goals pull in opposite directions, and for years the result was conflict. SRE, site reliability engineering, is a way of working that ends the conflict with shared numbers and shared responsibility." },
     take:"Speed and stability are one shared goal. The error budget is the agreement that makes it work.",
+    read:[ {s:"The Sysadmin Approach to Service Management", c:"SRE book, chapter 1", u:"https://sre.google/sre-book/introduction/"}, {s:"Motivation for Error Budgets", c:"SRE book, chapter 3", u:"https://sre.google/sre-book/embracing-risk/"} ],
     qs:[
      [ { type:"choice", q:"Developers want to release often. Operators want few changes, because changes cause incidents. What is the root of this conflict?",
          opts:[ {t:"They are judged on opposite goals", ok:1},
@@ -2595,6 +2640,7 @@ var COURSE = [
   { id:"l11-2", type:"lesson", code:"11.2", title:"Ready for launch", sub:"6 questions. Before it goes live.",
     intro:{ h:"Before the doors open", p:"A new service brings new risks. Before it goes live, good teams check that it can be run: Can we see what it does? Is there an alert? A way back? Someone on call? This check is called a production readiness review. Its goal is to help the launch, not to block it." },
     take:"Before launch: can we see it, be alerted, undo it and support it? A checklist helps, as advice and not as a wall.",
+    read:[ {s:"The Launch Checklist", c:"SRE book, chapter 27", u:"https://sre.google/sre-book/reliable-product-launches/"}, {s:"Production Readiness Reviews: Simple PRR Model", c:"SRE book, chapter 32", u:"https://sre.google/sre-book/evolving-sre-engagement-model/"} ],
     qs:[
      [ { type:"choice", q:"A new service is about to go live. What should the team check first?",
          opts:[ {t:"That problems will be noticed", ok:1},
@@ -2819,6 +2865,7 @@ var COURSE = [
   { id:"l12-1", type:"lesson", code:"12.1", title:"When numbers mislead", sub:"6 questions. Averages, wrong measures and false comfort.",
     intro:{ h:"A number is not the truth", p:"By now you trust numbers more than feelings. Good. But numbers can mislead too. An average can hide the users who suffer. A green objective can sit next to unhappy customers. This stop is about reading numbers with care." },
     take:"Averages hide the unlucky users. If the objective is met and users are unhappy, the measure is wrong, not the users.",
+    read:[ {s:"Aggregation", c:"SRE book, chapter 4", u:"https://sre.google/sre-book/service-level-objectives/"} ],
     qs:[
      [ { type:"choice", q:"Nine pages open in 1 second. The tenth takes 91 seconds. The average is 10 seconds. What does the average hide?",
          opts:[ {t:"One user had a terrible wait", ok:1},
@@ -2901,6 +2948,7 @@ var COURSE = [
   { id:"l12-2", type:"lesson", code:"12.2", title:"Hard choices", sub:"6 questions. Dependencies, promises and pressure.",
     intro:{ h:"No rule decides this for you", p:"Real services depend on other services. Customers get promises in contracts. And sometimes the budget is gone while the business needs a launch. There is no formula here. There are principles, and judgement." },
     take:"You are at most as reliable as what you depend on. Promise customers less than you aim for. And keep things simple.",
+    read:[ {s:"The Global Chubby Planned Outage", c:"SRE book, chapter 4", u:"https://sre.google/sre-book/service-level-objectives/"}, {s:"Identifying the Risk Tolerance of Infrastructure Services", c:"SRE book, chapter 3", u:"https://sre.google/sre-book/embracing-risk/"} ],
     qs:[
      [ { type:"choice", q:"A shop needs a payment company to work. The payment company works 99% of the time. Can the shop's checkout reach 99.9%?",
          opts:[ {t:"No. Not with this dependency", ok:1},
@@ -2986,6 +3034,7 @@ var COURSE = [
   { id:"l13-1", type:"lesson", code:"13.1", title:"AI as a helper", sub:"6 questions. What AI is good at, and where it goes wrong.",
     intro:{ h:"A new colleague", p:"AI can now read alerts, search through records and suggest what is wrong, within seconds. That makes it a strong helper during incidents. It can also be wrong while sounding very sure. So the question is not whether to use it, but how much to let it do." },
     take:"AI is a fast helper for finding and summarising. It can be wrong with full confidence, so check what matters.",
+    read:[ {s:"Key Challenges in Applying AI to Production Operations", c:"AI in SRE paper", u:"https://sre.google/resources/practices-and-processes/ai-engineering-reliable-operations/"}, {s:"AI Across the SRE Lifecycle", c:"AI in SRE paper", u:"https://sre.google/resources/practices-and-processes/ai-engineering-reliable-operations/"} ],
     qs:[
      [ { type:"choice", q:"An alert rings at night. Within two minutes, an AI adds: recent changes, similar incidents from the past, and a possible cause. What is the value of this?",
          opts:[ {t:"The engineer starts with context", ok:1},
@@ -3070,6 +3119,7 @@ var COURSE = [
   { id:"l13-2", type:"lesson", code:"13.2", title:"Humans in charge", sub:"6 questions. Limits, approval and the stop button.",
     intro:{ h:"How much may it do?", p:"An AI that only gives advice can do little harm. An AI that changes live systems can do a lot of harm, very fast. So freedom is given in steps: first only reading, then acting with approval, then acting alone on small, well-known problems. And there is always a way to stop it." },
     take:"Give AI freedom in steps, as it proves itself. Keep limits, a record of every action, and a stop button. People stay accountable.",
+    read:[ {s:"SRE AI Autonomy Levels", c:"AI in SRE paper", u:"https://sre.google/resources/practices-and-processes/ai-engineering-reliable-operations/"}, {s:"The Safety Trifecta", c:"AI in SRE paper", u:"https://sre.google/resources/practices-and-processes/ai-engineering-reliable-operations/"} ],
     qs:[
      [ { type:"order", q:"Put these ways of using AI in order. Start with the one where people do the most.",
          items:["AI only gathers information","AI suggests, a person carries it out","AI acts after a person approves","AI acts alone on small, known problems"],

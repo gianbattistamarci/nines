@@ -1,6 +1,6 @@
 /* Nines: the game code. The course content lives in questions.js. */
 "use strict";
-var VERSION = "1.1.1";   /* Raise this with every published change. It is shown in the footer. */
+var VERSION = "1.2";   /* Raise this with every published change. It is shown in the footer. */
 /* ---------------------------------------------------------------- content */
 /* The lessons and exams (COURSE and LATER) live in questions.js, loaded just above this script. */
 if(typeof COURSE === "undefined"){ document.getElementById("root").textContent = "The file questions.js could not be loaded. It must sit in the same folder as index.html."; throw new Error("questions.js missing"); }
@@ -140,6 +140,26 @@ function confetti(){
     ";animation-duration:" + (1.8 + Math.random() * 1.8) + "s;animation-delay:" + (Math.random() * 0.6) + "s"}));
   document.body.append(box); setTimeout(function(){ box.remove(); }, 4500);
 }
+/* Read the theory: links to the section of the book that explains a lesson. A link goes to the page's own
+   anchor when questions.js gives one, otherwise it asks the browser to jump to the section heading. Links open
+   in a new tab, carry no data about the player, and only ever point to an https address. */
+function theoryUrl(r){
+  if(!r || typeof r.u !== "string" || !/^https:\/\/[^\s"<>]+$/.test(r.u)) return null;
+  if(typeof r.a === "string" && /^[\w-]+$/.test(r.a)) return r.u + "#" + r.a;
+  return typeof r.s === "string" ? r.u + "#:~:text=" + encodeURIComponent(r.s).replace(/-/g, "%2D") : r.u;
+}
+function readFor(node, q){
+  if(q && Array.isArray(q.read)) return q.read;
+  var id = (q && q.from) || node.id, l = SEQ.filter(function(n){ return n.id === id; })[0];
+  return (l && Array.isArray(l.read)) ? l.read : [];
+}
+function readBlock(refs, cls){
+  var kids = [];
+  refs.forEach(function(r){ var u = theoryUrl(r); if(!u) return;
+    kids.push(h("li", null, h("a", {href:u, target:"_blank", rel:"noopener noreferrer"}, r.s), h("span", {class:"src", text:" " + r.c})));
+  });
+  return kids.length ? h("div", {class:"read" + (cls ? " " + cls : "")}, h("span", {class:"lab", text:"Read the theory"}), h("ul", null, kids)) : null;
+}
 var prefs = { big:false };
 function loadPrefs(){ prefs.big = false; try { var o = JSON.parse(localStorage.getItem(PREF_KEY) || "{}"); prefs.big = !!o && o.big === true; } catch(e){} }
 loadPrefs();
@@ -173,7 +193,24 @@ function paintSave(){
   el.replaceChildren(h("span", {class:"dot " + (localOk ? "ok" : "bad")}),
     h("span", {text: localOk ? "Progress saved on this device" : "Progress cannot be saved in this window"}));
 }
+/* The path keeps its place. Back from a stop, the path opens at that stop. Back from the certificates, or after
+   a setting changes, it opens where it was. On first opening, it shows the next stop instead of the top. */
+var homeY = null, returnTo = null, homeShown = false;
+function leaveHome(){ if(root.querySelector(".path")) homeY = window.scrollY; }
+function placePath(nx){
+  var first = !homeShown, el = null; homeShown = true;
+  if(returnTo) el = document.getElementById("s-" + returnTo);
+  else if(homeY == null && first && S.updatedAt && nx) el = document.getElementById("s-" + nx.id);
+  if(el) el.scrollIntoView({block:"center"}); else if(homeY != null) window.scrollTo(0, homeY);
+  /* On first opening the fonts may still be loading, which moves the stops. Place it once more when they are in. */
+  if(el && first){ var y = window.scrollY;
+    try { if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ if(el.isConnected && Math.abs(window.scrollY - y) < 2) el.scrollIntoView({block:"center"}); }); } catch(e){} }
+  returnTo = null; homeY = null;
+}
+/* The game places the path itself, so the browser should not jump back to an old scroll position on reload. */
+try { if("scrollRestoration" in history) history.scrollRestoration = "manual"; } catch(e){}
 function renderHome(){
+  leaveHome();
   sess = null;
   var nx = nextNode(), items = [], zig = [0, 1, 2, 1], zi = 0;
   COURSE.forEach(function(u){
@@ -192,7 +229,7 @@ function renderHome(){
       }
       var body = [badge, h("span", null, h("span", {class:"stop-t", text:n.title}), h("span", {class:"stop-s", text:n.sub})), right];
       var card = op ? h("button", {class:cls, type:"button", onclick:function(){ start(n); }}, body) : h("div", {class:cls}, body);
-      items.push(h("li", {class:"stop-li", style:"--sx:calc(var(--step) * " + zig[zi++ % 4] + ")"},
+      items.push(h("li", {class:"stop-li", id:"s-" + n.id, style:"--sx:calc(var(--step) * " + zig[zi++ % 4] + ")"},
         ni > 0 ? h("span", {class:"conn" + (op ? " on" : "")}) : null, card));
     });
   });
@@ -233,6 +270,7 @@ function renderHome(){
         h("button", {class:"linkish", type:"button", disabled:clearing, text:"Clear game data", title:"Erase saved progress and settings on this device, and load the newest version of the game", onclick:clearGameData}),
         h("span", {class:"ver", text:"Version " + VERSION}))));
   paintSave();
+  placePath(nx);
 }
 
 /* ----------------------------------------------------------- certificates */
@@ -283,6 +321,7 @@ function saveCert(cv, rank){
   } catch(e){}
 }
 function renderCerts(){
+  leaveHome();
   sess = null;
   var ranks = earnedRanks().reverse(), canvases = [];
   function saveName(){ var el = document.getElementById("name1"); S.name = cleanName(el ? el.value : ""); save(); renderCerts(); }
@@ -340,6 +379,7 @@ function drawAll(node){
   return qs;
 }
 function start(node){
+  leaveHome(); returnTo = node.id;
   var ex = node.type === "exam";
   var qs = drawAll(node);
   if(ex) qs = shuffle(qs);
@@ -454,6 +494,7 @@ function viewFeedback(){
   if(q.point) kids.push(h("p", null, h("span", {class:"lab", text:"The point"}), q.point));
   kids.push(h("p", null, h("span", {class:"lab", text:"Picture it"}), q.ex));
   if(ok && L.gain) kids.push(h("span", {class:"note", text:"+" + L.gain + " points" + (L.bonus ? " (includes +" + L.bonus + " for " + sess.combo + " in a row)" : "")}));
+  kids.push(readBlock(readFor(sess.node, q)));
   if(!ok && !sess.exam) kids.push(h("span", {class:"note", text:"You will get another go at this one before the stop ends."}));
   return h("div", {class:"fb " + (ok ? "ok" : "no"), role:"status", "aria-live":"polite"}, kids);
 }
@@ -481,6 +522,7 @@ function viewResult(){
     if(r.stars < 3) c.push(h("p", {text:"The repeats are how it sticks. Practise again any time to earn all three stars."}));
     c.push(tally([["Points earned", "+" + r.xp], ["Right first time", r.first + " of " + r.total], ["Perfect bonus", r.bonus ? "+" + r.bonus : "0"]]));
     c.push(h("p", {class:"take"}, h("b", {text:"Remember"}), n.take));
+    c.push(readBlock(readFor(n), "card-read"));
   }
   return c;
 }
@@ -489,12 +531,15 @@ function renderPlay(){
   var where = s.exam ? n.title : "Stop " + n.code + ": " + n.title;
   if(s.phase === "intro"){
     card = h("section", {class:"card intro"},
-      h("div", null, h("p", {class:"where", text:where}), h("h2", {text:n.intro.h}), h("p", {text:n.intro.p})));
+      h("div", null, h("p", {class:"where", text:where}), h("h2", {text:n.intro.h}), h("p", {text:n.intro.p}),
+        s.exam ? null : readBlock(readFor(n), "card-read")));
     actions.push(h("button", {class:"btn btn-primary btn-big", type:"button", id:"main", text:"Begin", onclick:advance}));
   } else if(s.phase === "result"){
     card = h("section", {class:"card result"}, h("p", {class:"where", text:where}), viewResult());
     var nx = nextNode();
-    if(s.exam && !s.passed) actions.push(h("button", {class:"btn", type:"button", text:"Try again", onclick:function(){ start(n); }}));
+    /* A retry is offered whenever the score is not full yet: a failed or imperfect exam, or a stop with fewer than three stars. */
+    var retry = s.exam ? (s.passed ? (s.pct < 100 ? "Try again for 100%" : null) : "Try again") : (s.stars < 3 ? "Try again for 3 stars" : null);
+    if(retry) actions.push(h("button", {class:"btn", type:"button", text:retry, onclick:function(){ start(n); }}));
     actions.push(h("button", {class:"btn" + (nx && nx !== n && !(s.exam && !s.passed) ? "" : " btn-primary"), type:"button", text:"Back to the path", onclick:renderHome,
       id: (nx && nx !== n && !(s.exam && !s.passed)) ? null : "main"}));
     if(s.exam && s.passed) actions.unshift(h("button", {class:"btn", type:"button", text:"See your certificate", onclick:renderCerts}));

@@ -232,6 +232,14 @@ button.stop:active{transform:translateY(2px);box-shadow:0 1px 0 var(--edge)}
 .fb .lab{display:block;font-weight:800;font-size:.85rem;color:var(--muted)}
 .fb ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
 .fb .note{font-weight:800;font-size:.9rem;color:var(--muted)}
+.read{display:flex;flex-direction:column;gap:4px;text-align:left}
+.read .lab{display:block;font-weight:800;font-size:.85rem;color:var(--muted)}
+.read ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+.read a{color:inherit;font-weight:700;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:2px}
+.read a::after{content:" \2197";text-decoration:none;display:inline-block}
+.read a:hover{color:var(--blue)}
+.read .src{display:block;color:var(--muted);font-size:.9rem}
+.card-read{border-top:2px solid var(--edge);padding-top:12px;align-self:stretch}
 .p-actions{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;align-items:center}
 .btn-big{min-width:200px;font-size:1.2rem}
 @media (max-width:520px){.p-actions .btn{flex:1}}
